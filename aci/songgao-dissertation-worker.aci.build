@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+acbuildend () {
+    export EXIT=$?;
+    sudo acbuild --debug end && exit $EXIT;
+}
+
+acbuild --debug begin
+trap acbuildend EXIT
+
+# User entered acbuild commands go here
+
+rm -f songgao-dissertation-worker.aci
+
+acbuild set-name songgao-dissertation-worker
+acbuild isolator add "os/linux/capabilities-retain-set" ./cap_net_admin.json
+
+acbuild dependency add quay.io/coreos/alpine-sh
+sudo acbuild run -- apk update
+sudo acbuild run -- apk add iperf
+
+sudo acbuild copy ./bin/squirrel-worker /bin/squirrel-worker
+sudo acbuild copy ./bin/squirrel-worker-wrapper /bin/squirrel-worker-wrapper
+sudo acbuild copy ./bin/truck-playback /bin/truck-playback
+
+sudo acbuild write songgao-dissertation-worker.aci
+sudo chown $USER:$USER songgao-dissertation-worker.aci

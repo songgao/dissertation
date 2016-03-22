@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+
+acbuildend () {
+    export EXIT=$?;
+    acbuild --debug end && exit $EXIT;
+}
+
+acbuild --debug begin
+trap acbuildend EXIT
+
+# User entered acbuild commands go here
+
+rm -f songgao-dissertation-master.aci
+
+acbuild set-name songgao-dissertation-master
+
+acbuild copy ./bin/squirrel-master /bin/squirrel-master
+acbuild set-exec /bin/squirrel-master
+
+acbuild write songgao-dissertation-master.aci

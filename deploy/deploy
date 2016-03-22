@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd $(dirname $0)
+. ./settings
+DEPLOY=$WORKSPACE/deploy
+
+RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive"
+
+ssh $HOST "mkdir -p $DEPLOY"
+rsync $RSYNC_FLAGS . $HOST:$DEPLOY
+for aci in ../aci/*.aci; do
+  rsync $RSYNC_FLAGS $aci $HOST:$DEPLOY
+done
+ssh $HOST "cd $DEPLOY; ./deploy.target"
