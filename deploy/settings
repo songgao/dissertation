@@ -1,2 +1,2 @@
-HOST=coreos-2-direct
+HOST=coreos-2 #-direct
 WORKSPACE=/home/core/dissertation-workspace

@@ -19,10 +19,14 @@ acbuild isolator add "os/linux/capabilities-retain-set" ./cap_net_admin.json
 acbuild dependency add quay.io/coreos/alpine-sh
 sudo acbuild run -- apk update
 sudo acbuild run -- apk add iperf
+sudo acbuild run -- apk add tcpdump
 
 sudo acbuild copy ./bin/squirrel-worker /bin/squirrel-worker
 sudo acbuild copy ./bin/squirrel-worker-wrapper /bin/squirrel-worker-wrapper
 sudo acbuild copy ./bin/truck-playback /bin/truck-playback
+
+sudo acbuild mount add workspace /workspace
+sudo acbuild mount add assets /assets
 
 sudo acbuild write songgao-dissertation-worker.aci
 sudo chown $USER:$USER songgao-dissertation-worker.aci
