@@ -1,0 +1,19 @@
+{
+  "name": "chart-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Song Gao <song@gao.io>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "JSONStream": "^1.1.1",
+    "byline": "^4.2.1",
+    "coordinator": "^0.4.7",
+    "machina": "^2.0.0-1",
+    "stream-to-array": "^2.3.0",
+    "underscore": "^1.8.3"
+  }
+}
