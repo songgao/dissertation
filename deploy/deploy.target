@@ -1,15 +1,17 @@
 #!/bin/bash
 
-cd $(dirname $0)
-
-./pop-etcd
-
-sudo systemctl stop worker@*.service
+sudo systemctl stop 'worker@*'
+sudo systemctl stop 'worker-debug@*'
 sudo systemctl stop master.service
 sudo systemctl stop master-debug.service
+
+cd $(dirname $0)
 
 for service in ./*.service; do
   sudo cp $service /etc/systemd/system/
 done
 
 sudo systemctl daemon-reload
+
+./pop-etcd
+

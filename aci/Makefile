@@ -1,7 +1,7 @@
 BUILD_MACHINE=rkt
 BUILD_WORKSPACE=/home/vagrant/build-workspace/aci
 RSYNC_FLAGS=--times --checksum --human-readable --progress --recursive
-GOBUILD=cd bin; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w'
+GOBUILD=cd bin; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
 
 .PHONY: bin-clean bin-update aci-clean acis clean
 
@@ -38,7 +38,7 @@ bin/truck-playback:
 	$(GOBUILD) "gitlab.com/songgao/truck-playback"
 
 bin/squirrel-worker-wrapper:
-	echo '#!/bin/sh\n/bin/squirrel-worker & &>/dev/null\nsleep 2\n$$@' > bin/squirrel-worker-wrapper
+	echo '#!/bin/sh\n/bin/squirrel-worker &\nsleep 2\n$$@ 2>/workspace/stderr | tee /workspace/stdout\nsync\nsleep 2' > bin/squirrel-worker-wrapper
 	chmod +x bin/squirrel-worker-wrapper
 
 bin:
