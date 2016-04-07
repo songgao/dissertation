@@ -17,5 +17,5 @@ exports.findBounds = data => _.reduce(data, (memo, item) => {
   z: {min: Number.MAX_VALUE, max: Number.MIN_VALUE},
 });
 
-exports.array_cat = (list) => _.reduce(list, function(a, b) { return a.concat(b); }, []);
-exports.sum = (list) => _.reduce(list, function(memo, num){ return memo + num; }, 0)
+exports.array_cat = (list) => _.reduce(list, (a, b) => { return a.concat(b); }, []);
+exports.sum = (list) => _.reduce(list, (memo, num) => { return memo + num; }, 0)

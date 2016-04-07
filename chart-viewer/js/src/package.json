@@ -1,0 +1,17 @@
+{
+  "name": "chart-viewer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Song Gao <song@gao.io>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "extend": "^3.0.0",
+    "highcharts": "^4.2.3",
+    "jquery": "^2.2.3",
+    "moment": "^2.12.0"
+  }
+}
