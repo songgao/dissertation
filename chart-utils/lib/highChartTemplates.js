@@ -40,10 +40,7 @@ exports.area2d = (series, title) => {
       }
     },
 
-    series: series.map((s) => {
-      s.type = 'area';
-      return s;
-    })
+    series: series
   };
 };
 
