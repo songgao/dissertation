@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. ../deploy/settings
+
+WORKSPACES=$WORKSPACE/workspaces
+
+RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compress"
+
+rsync $RSYNC_FLAGS $HOST:$WORKSPACES .
