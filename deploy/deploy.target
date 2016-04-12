@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sudo systemctl stop plan.service
 sudo systemctl stop 'worker@*'
 sudo systemctl stop 'worker-debug@*'
 sudo systemctl stop master.service

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+# ./run-and-wait 0826-front-raw-rp14 0826-back-raw-rp14
+
+./run-and-wait 0826-front-ictl-cl1-rp14 0826-back-ictl-cl1-rp14
+./run-and-wait 0826-front-ictl-cl2-rp14 0826-back-ictl-cl2-rp14
+./run-and-wait 0826-front-ictl-cl3-rp14 0826-back-ictl-cl3-rp14
+./run-and-wait 0826-front-ictl-cl4-rp14 0826-back-ictl-cl4-rp14
+./run-and-wait 0826-front-ictl-cl5-rp14 0826-back-ictl-cl5-rp14
+./run-and-wait 0826-front-ictl-cl6-rp14 0826-back-ictl-cl6-rp14
+./run-and-wait 0826-front-ictl-cl7-rp14 0826-back-ictl-cl7-rp14

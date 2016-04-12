@@ -1,0 +1,9 @@
+[Unit]
+Description=Plan
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/usr/bin/bash /home/core/dissertation-workspace/deploy/plan
+
+[Install]
+WantedBy=multi-user.target

@@ -5,7 +5,7 @@ Requires=etcd2.service
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/usr/bin/rkt --insecure-options=image run /home/core/dissertation-workspace/deploy/songgao-dissertation-master.aci --interactive --net=host --set-env=SQUIRREL_ENDPOINT=http://10.0.4.3:4001
+ExecStart=/usr/bin/rkt --insecure-options=image run /home/core/dissertation-workspace/deploy/songgao-dissertation-master.aci --net=host --set-env=SQUIRREL_ENDPOINT=http://10.0.4.3:4001
 
 [Install]
 WantedBy=multi-user.target

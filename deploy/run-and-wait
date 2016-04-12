@@ -1,0 +1,34 @@
+#!/bin/bash
+
+log() {
+  echo "$(date): $@"
+}
+
+wait_all_worker() {
+  sleep 2
+  while true;
+  do
+    rkt list --no-legend | grep running | grep worker &>/dev/null || break
+    log "Services are still alive; keep waiting ..."
+    sleep 5;
+  done
+  log "Done waiting!"
+}
+
+services=""
+
+for job in $@;
+do
+  services="$services worker@$job.service"
+done
+
+log "Services: $services"
+
+wait_all_worker
+log "Starting services: $services"
+systemctl start $services
+log "Sleeping for 2h before checking ..."
+sleep 2h
+log "Waiting for services to finish: $services"
+wait_all_worker
+
