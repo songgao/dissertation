@@ -7,7 +7,7 @@ const $ = require('jquery');
 const extend = require('extend');
 
 $(function () {
-  $.getJSON("charts/0821-front-wsm-bandwidth-2d.json", (options) => {
+  $.getJSON("charts/0826-front-rp14-wsm-bandwidth-2d-cl-1-7.json", (options) => {
     // shift all data series to start at the same time for easy comparison
     options.series.forEach((s) => {
       let start = Date.parse(s.data[0][0]);
@@ -21,6 +21,7 @@ $(function () {
 
     let chart = new Highcharts.Chart('wsm-bandwidth-2d', options);
   });
+  /*
   $.getJSON("charts/0821-front-wsm-bandwidth-3d.json", (options) => {
     let chart = new Highcharts.Chart('wsm-bandwidth-3d', options);
     $(chart.container).bind('mousedown.hc touchstart.hc', function (eStart) {
@@ -52,6 +53,7 @@ $(function () {
       });
     });
   });
+  */
 });
 
 },{"extend":2,"highcharts":4,"highcharts/highcharts-3d":3,"jquery":5}],2:[function(require,module,exports){

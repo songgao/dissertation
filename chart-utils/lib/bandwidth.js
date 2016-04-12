@@ -43,7 +43,7 @@ class Bandwidth extends require('stream').Transform {
         aggregating: {
           entry: function(entry) {
             if (entry.time.getUTCSeconds() == this.this_minute.first.time.getUTCSeconds()) {
-              this.this_minute.data_point.wsm_bytes += entry.wsm_size;
+              this.this_minute.data_point.wsm_bytes += entry.wsm_size * entry.wsm_repeat;
               this.this_minute.data_point.frame_bytes += entry.frame_size;
             } else {
               this.emit('data_point', this.this_minute.data_point);

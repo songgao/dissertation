@@ -1,6 +1,10 @@
 'use strict'
 
-const re = /^send at ([^\s]+) msg_counter=(\d+) lat,long,h=([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?) in WSM 1\/1 with payload of (\d+) bytes in MAC frame of (\d+) bytes$/
+// before 3af3ccc22a330be824e62a9fe17e7a3d903c157c
+// const re = /^send at ([^\s]+) msg_counter=(\d+) lat,long,h=([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?) in WSM 1\/1 with payload of (\d+) bytes in MAC frame of (\d+) bytes$/
+
+// logging format updated at 3af3ccc22a330be824e62a9fe17e7a3d903c157c
+const re = /^send at ([^\s]+) msg_counter=(\d+) lat,long,h=([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?),([+-]?\d+(?:\.\d+)?) in WSM with payload of (\d+) bytes, repeated (\d+) time\(s\), in MAC frame of (\d+) bytes$/
 
 function parseEntry(line) {
   let m = line.match(re);
@@ -16,7 +20,8 @@ function parseEntry(line) {
       height : parseFloat(m[5]),
     },
     wsm_size : parseInt(m[6]),
-    frame_size : parseInt(m[7]),
+    wsm_repeat: parseInt(m[7]),
+    frame_size : parseInt(m[8]),
   }
 }
 
