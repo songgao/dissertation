@@ -12,6 +12,12 @@
     "extend": "^3.0.0",
     "highcharts": "^4.2.3",
     "jquery": "^2.2.3",
-    "moment": "^2.12.0"
+    "moment": "^2.12.0",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "reactify": "^1.1.1"
   }
 }
