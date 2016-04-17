@@ -86,8 +86,8 @@ module.exports = () => {
     });
     return true;
   };
-  if (addChart('charts2d', addChart2d) || addChart('charts3d', addChart3d)) {
-    return true
-  }
-  return false;
+  $('#main').append('<div><a href="/">Back</a></div><hr>');
+  const ok2d = addChart('charts2d', addChart2d);
+  const ok3d = addChart('charts3d', addChart3d);
+  return (ok2d || ok3d);
 };
