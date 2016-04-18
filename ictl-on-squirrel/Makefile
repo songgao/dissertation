@@ -5,6 +5,9 @@ default:
 
 0826: charts/0826-front-rp14-wsm-bandwidth-2d-cl-1-7.json charts/0826-back-rp14-wsm-bandwidth-2d-cl-1-7.json
 
+0826-hz10: charts/0826-front-rp14-hz10-wsm-bandwidth-2d-cl-1-7.json charts/0826-back-rp14-hz10-wsm-bandwidth-2d-cl-1-7.json
+
+
 charts/%-wsm-bandwidth-2d-cl-1-7.json : workspaces/%-raw/log/tx workspaces/%-ictl-cl1/log/tx workspaces/%-ictl-cl2/log/tx workspaces/%-ictl-cl3/log/tx workspaces/%-ictl-cl4/log/tx workspaces/%-ictl-cl5/log/tx workspaces/%-ictl-cl6/log/tx workspaces/%-ictl-cl7/log/tx
 	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=2' 'ICTL CL=3' 'ICTL CL=4' 'ICTL CL=5' 'ICTL CL=6' 'ICTL CL=7' --paths $? --chart wsm-bandwidth-2d > $@
 
