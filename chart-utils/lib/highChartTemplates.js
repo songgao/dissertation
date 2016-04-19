@@ -2,8 +2,8 @@
 
 const utils = require('./utils');
 
-exports.area2d = (series, title) => {
-  return {
+exports.area2d = (yAxisTitle) => {
+  return (series, title) => ({
     chart: {
       renderTo: 'container',
       margin: 100,
@@ -21,7 +21,7 @@ exports.area2d = (series, title) => {
     yAxis: {
       minPadding: 0,
       title: {
-        text: 'Bandwidth (byte/s)'
+        text: yAxisTitle,
       }
     },
     plotOptions: {
@@ -41,11 +41,11 @@ exports.area2d = (series, title) => {
     },
 
     series: series
-  };
+  });
 };
 
-exports.scatter3d = (series, title) => {
-  return {
+exports.scatter3d = (yAxisTitle) => {
+  return (series, title) => ({
     chart: {
       renderTo: 'container',
       margin: 100,
@@ -78,7 +78,7 @@ exports.scatter3d = (series, title) => {
     yAxis: {
       minPadding: 0,
       title: {
-        text: 'Bandwidth (byte/s)'
+        text: yAxisTitle,
       }
     },
     xAxis: {
@@ -92,7 +92,7 @@ exports.scatter3d = (series, title) => {
       }
     },
     series: series,
-  };
+  });
 };
 
 
