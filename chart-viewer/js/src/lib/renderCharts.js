@@ -19,6 +19,9 @@ const addChart2d = (id, chart_fn) => {
   $.getJSON('charts/' + chart_fn).then((options) => {
     // shift all data series to start at the same time for easy comparison
     options.series.forEach((s) => {
+      if (!s.data || !s.data.length) {
+        return;
+      }
       const start = Date.parse(s.data[0][0]);
       s.data.forEach((p) => {
         p[0] = Date.parse(p[0]) - start;
