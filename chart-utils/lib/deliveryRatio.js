@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const machina = require('machina');
+const Combine = require('stream-combiner');
 const _ = require('underscore');
 const highChartTemplates = require('./highChartTemplates');
 const rx = require('./rx');

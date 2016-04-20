@@ -5,8 +5,9 @@ const LineStream = require('byline').LineStream;
 const toArray = require('stream-to-array');
 
 module.exports = (chart, files, chartTitle) => {
-  let data_promises = files.map( (file) => toArray(chart.processor(
-          fs.createReadStream(file.path).pipe(new LineStream()))));
+  let data_promises = files.map( (file) => toArray(
+        fs.createReadStream(file.path).pipe(
+          new LineStream()).pipe(chart.stream())));
 
   Promise.all(data_promises).then((all) => {
     let series = all.map( (data, i) => ({

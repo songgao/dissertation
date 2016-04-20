@@ -21,7 +21,7 @@ class Bandwidth extends require('stream').Transform {
         this.this_second.first = first;
         this.this_second.data_point = {
           time: first.time,
-          wsm_bytes: first.wsm_size,
+          wsm_bytes: first.wsm_size * first.wsm_repeat,
           frame_bytes: first.frame_size,
           position: first.position,
         };
@@ -103,10 +103,15 @@ class Bandwidth2WSM3d extends require('stream').Transform {
   }
 }
 
-exports.Bandwidth2WSM3d = {
-  processor: (readable) => readable.pipe(new tx.LineParser()).pipe(new Bandwidth()).pipe(new Bandwidth2WSM3d),
-  stream: () => Combine(new tx.LineParser(), new Bandwidth(), new Bandwidth2WSM3d()),
-  chartTemplate: highChartTemplates.scatter3d('Bandwidth (byte/s)'),
+class Bandwidth2Frame3d extends require('stream').Transform {
+  constructor() {
+    super({writableObjectMode: true, readableObjectMode: true});
+  }
+  _transform(chunk, encoding, callback) {
+    let en = latlong2utm(chunk.position.latitude, chunk.position.longitude);
+    this.push([en.easting, chunk.frame_bytes, en.northing]);
+    callback();
+  }
 }
 
 class Bandwidth2WSM2d extends require('stream').Transform {
@@ -119,9 +124,37 @@ class Bandwidth2WSM2d extends require('stream').Transform {
   }
 }
 
-exports.Bandwidth2WSM2d = {
+class Bandwidth2Frame2d extends require('stream').Transform {
+  constructor() {
+    super({writableObjectMode: true, readableObjectMode: true});
+  }
+  _transform(chunk, encoding, callback) {
+    this.push([chunk.time, chunk.frame_bytes]);
+    callback();
+  }
+}
+
+exports.BandwidthWSM3d = {
+  processor: (readable) => readable.pipe(new tx.LineParser()).pipe(new Bandwidth()).pipe(new Bandwidth2WSM3d),
+  stream: () => Combine(new tx.LineParser(), new Bandwidth(), new Bandwidth2WSM3d()),
+  chartTemplate: highChartTemplates.scatter3d('Bandwidth (byte/s)'),
+}
+
+exports.BandwidthWSM2d = {
   processor: (readable) => readable.pipe(new tx.LineParser()).pipe(new Bandwidth()).pipe(new Bandwidth2WSM2d()),
   stream: () => Combine(new tx.LineParser(), new Bandwidth(), new Bandwidth2WSM2d()),
+  chartTemplate: highChartTemplates.area2d('Bandwidth (byte/s)'),
+}
+
+exports.BandwidthFrame3d = {
+  processor: (readable) => readable.pipe(new tx.LineParser()).pipe(new Bandwidth()).pipe(new Bandwidth2Frame3d),
+  stream: () => Combine(new tx.LineParser(), new Bandwidth(), new Bandwidth2Frame3d()),
+  chartTemplate: highChartTemplates.scatter3d('Bandwidth (byte/s)'),
+}
+
+exports.BandwidthFrame2d = {
+  processor: (readable) => readable.pipe(new tx.LineParser()).pipe(new Bandwidth()).pipe(new Bandwidth2Frame2d()),
+  stream: () => Combine(new tx.LineParser(), new Bandwidth(), new Bandwidth2Frame2d()),
   chartTemplate: highChartTemplates.area2d('Bandwidth (byte/s)'),
 }
 

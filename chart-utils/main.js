@@ -12,11 +12,19 @@ const genChart = require('./lib/genChart');
 const chartMapping = {
   'wsm-bandwidth-2d': {
     title: 'WSM Bandwidth 2D',
-    chart: bandwidth.Bandwidth2WSM2d,
+    chart: bandwidth.BandwidthWSM2d,
   },
   'wsm-bandwidth-3d': {
     title: 'WSM Bandwidth 3D',
-    chart: bandwidth.Bandwidth2WSM3d,
+    chart: bandwidth.BandwidthWSM3d,
+  },
+  'frame-bandwidth-2d': {
+    title: 'Frame Bandwidth 2D',
+    chart: bandwidth.BandwidthFrame2d,
+  },
+  'frame-bandwidth-3d': {
+    title: 'Frame Bandwidth 3D',
+    chart: bandwidth.BandwidthFrame3d,
   },
   'delivery-ratio-2d': {
     title: 'Delivery Ratio 2D',

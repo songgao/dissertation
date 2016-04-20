@@ -4,10 +4,10 @@ const $ = require('jquery');
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-const Select = require('react-select');
 const Grid = require('react-bootstrap').Grid;
 const Row = require('react-bootstrap').Row;
 const Col = require('react-bootstrap').Col;
+const FormControl = require('react-bootstrap').FormControl;
 
 const getChartList = () => {
   const tmp = $('<div></div>');
@@ -20,24 +20,24 @@ const getChartList = () => {
 
 const Selector = React.createClass({
   getInitialState: function() {
-    return { value: null };
+    return { selected: [] };
   },
-  handleSelectChange: function(value) {
-    this.setState({value});
+  handleSelectChange: function(e) {
+    const selected = [].slice.call(e.target.selectedOptions).map( (op) => op.value);
+    this.setState({ selected: selected });
     if (this.props.onChange) {
-      this.props.onChange(this.props.selectorName, value.map((o) => o.value));
+      this.props.onChange(this.props.selectorName, selected);
     }
   },
   render: function() {
-    const options = this.props.fileNames.map( fn => ({value: fn, label: fn}) );
-    return (<Select
-        multi
-        name={"select-charts-" + this.props.selectorName}
-        options={options}
-        value={this.state.value}
-        placeholder={"select " + this.props.selectorName + " charts to view"}
-        onChange={this.handleSelectChange}
-        />);
+    const options = this.props.fileNames.map( fn => (
+          <option value={fn}>{fn}</option>
+          ) );
+    return (
+        <FormControl componentClass="select" multiple onChange={this.handleSelectChange} value={this.state.selected} size={options.length + 1}>
+          {options}
+        </FormControl>
+        );
   }
 });
 
