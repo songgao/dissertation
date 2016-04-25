@@ -3,45 +3,54 @@
 const utils = require('./utils');
 
 exports.area2d = (yAxisTitle) => {
-  return (series, title) => ({
-    chart: {
-      renderTo: 'container',
-      margin: 100,
-      zoomType: 'x'
-    },
-    title: {
-      text: title,
-    },
-    xAxis: {
-      type: 'datetime',
+  return (series, title) => {
+    series.forEach((s) => (s.data.sort((a, b) => a[0].getTime() - b[0].getTime())));
+    let ret = {
+      chart: {
+        renderTo: 'container',
+        margin: 100,
+        zoomType: 'x'
+      },
       title: {
-        text: 'Time'
-      }
-    },
-    yAxis: {
-      minPadding: 0,
-      title: {
-        text: yAxisTitle,
-      }
-    },
-    plotOptions: {
-      area: {
-        turboThreshold: 0,
-        marker: {
-          radius: 2
-        },
-        lineWidth: 1,
-        states: {
-          hover: {
-            lineWidth: 1
-          }
-        },
-        threshold: null
-      }
-    },
+        text: title,
+      },
+      xAxis: {
+        type: 'datetime',
+        title: {
+          text: 'Time'
+        }
+      },
+      yAxis: {
+        min: 0,
+        minPadding: 0,
+        title: {
+          text: yAxisTitle,
+        }
+      },
+      plotOptions: {
+        area: {
+          turboThreshold: 0,
+          marker: {
+            radius: 2
+          },
+          lineWidth: 1,
+          states: {
+            hover: {
+              lineWidth: 1
+            }
+          },
+          threshold: null
+        }
+      },
 
-    series: series
-  });
+      series: series
+    };
+
+    // heuristic to detect delivery ratio charts
+    if (series[0].data[series[0].data.length/2][1] <= 1) {
+      ret.yAxis.max = 1.1;
+    }
+  }
 };
 
 exports.scatter3d = (yAxisTitle) => {

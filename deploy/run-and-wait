@@ -25,10 +25,12 @@ done
 log "Services: $services"
 
 wait_all_worker
+log "running rkt gc ..."
+rkt gc --grace-period=0
 log "Starting services: $services"
 systemctl start $services
-log "Sleeping for 2h before checking ..."
-sleep 2h
+log "Sleeping for 32m before checking ..."
+sleep 32m
 log "Waiting for services to finish: $services"
 wait_all_worker
 

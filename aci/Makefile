@@ -1,4 +1,4 @@
-BUILD_MACHINE=rkt
+BUILD_MACHINE=acbuild
 BUILD_WORKSPACE=/home/vagrant/build-workspace/aci
 RSYNC_FLAGS=--times --checksum --human-readable --progress --recursive
 GOBUILD=cd bin; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo

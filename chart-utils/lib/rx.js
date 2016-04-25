@@ -17,8 +17,8 @@ function parseEntry(line) {
     time : new Date(m[1]),
     msg_counter : parseInt(m[2]),
     from : m[3],
-    wsm_index_in_frame: m[4],
-    wsm_total_in_frame: m[5],
+    wsm_index_in_frame: parseInt(m[4]),
+    wsm_total_in_frame: parseInt(m[5]),
     wsm_size : parseInt(m[6]),
     frame_size : parseInt(m[7]),
   }
@@ -27,24 +27,18 @@ function parseEntry(line) {
 class LineParser extends require('stream').Transform {
   constructor() {
     super({writableObjectMode: false, readableObjectMode: true});
-
-    this.buf = null;
   }
   incoming(entry) {
-    if (!this.buf || entry.msg_counter !== this.buf.msg_counter) {
-      if (this.buf) {
-        this.push(this.buf);
-      }
-      this.buf = {
+    if (entry.wsm_index_in_frame === 1) {
+      this.push({
         time: entry.time,
         msg_counter: entry.msg_counter,
         from: entry.from,
         wsm_total: entry.wsm_total_in_frame,
-        wsm_size_total: 0, // accumulating
+        wsm_size_total: entry.wsm_size * entry.wsm_total_in_frame,
         frame_size: entry.frame_size,
-      };
+      });
     }
-    this.buf.wsm_size_total += entry.wsm_size;
   }
   _transform(chunk, encoding, callback) {
     let entry = parseEntry(chunk.toString());
@@ -66,7 +60,7 @@ class Strip extends require('stream').Transform {
     super({writableObjectMode: true, readableObjectMode: true});
   }
   _transform(chunk, encoding, callback) {
-    this.push(_.pick(chunk, 'time', 'msg_counter'));
+    this.push(_.pick(chunk, 'time', 'msg_counter', 'from'));
     callback();
   }
 }
