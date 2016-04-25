@@ -17,6 +17,7 @@ module.exports = (chart, files, chartTitle) => {
     process.stdout.write(
         JSON.stringify(chart.chartTemplate(series, chartTitle)));
   }).catch( (e) => {
-    console.log(e);
+    console.log('promise error: ' + e.message);
+    console.log(e.stack);
   });
 }

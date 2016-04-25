@@ -50,6 +50,8 @@ exports.area2d = (yAxisTitle) => {
     if (series[0].data[series[0].data.length/2][1] <= 1) {
       ret.yAxis.max = 1.1;
     }
+
+    return ret;
   }
 };
 
