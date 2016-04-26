@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compress"
+DST_HOST=song
+DST_DIR=/home/core/dissertation
+
+rsync $RSYNC_FLAGS -L chart-viewer $DST_HOST:$DST_DIR/
