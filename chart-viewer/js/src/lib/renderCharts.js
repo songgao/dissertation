@@ -16,7 +16,7 @@ const getURLParameter = (sParam) => {
 };
 
 const addChart2d = (id, chart_fn) => {
-  $.getJSON('charts/' + chart_fn).then((options) => {
+  $.getJSON('./charts/' + chart_fn).then((options) => {
     // shift all data series to start at the same time for easy comparison
     options.series.forEach((s) => {
       if (!s.data || !s.data.length) {
@@ -37,7 +37,7 @@ const addChart2d = (id, chart_fn) => {
 };
 
 const addChart3d = (id, chart_fn) => {
-  $.getJSON('charts/' + chart_fn).then((options) => {
+  $.getJSON('./charts/' + chart_fn).then((options) => {
     extend(true, options, { subtitle: { text: chart_fn } });
     const chart = new Highcharts.Chart(id, options);
     $(chart.container).bind('mousedown.hc touchstart.hc', (eStart) => {

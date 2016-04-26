@@ -12,7 +12,7 @@ const FormControl = require('react-bootstrap').FormControl;
 const getChartList = () => {
   const tmp = $('<div></div>');
   return new Promise((resolve, reject) => {
-    tmp.load('/charts pre>a', () => {
+    tmp.load('./charts pre>a', () => {
       resolve(tmp.children().toArray().map(a => a.innerText));
     });
   });
@@ -56,7 +56,7 @@ const UI = React.createClass({
   render: function() {
     const fns2d = this.state['2d'].join(',');
     const fns3d = this.state['3d'].join(',');
-    const url = `/?charts2d=${fns2d}&charts3d=${fns3d}`;
+    const url = `./?charts2d=${fns2d}&charts3d=${fns3d}`;
     return (
         <Grid>
           <Row>

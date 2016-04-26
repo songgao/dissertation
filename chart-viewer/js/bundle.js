@@ -34,7 +34,7 @@ const getURLParameter = (sParam) => {
 };
 
 const addChart2d = (id, chart_fn) => {
-  $.getJSON('charts/' + chart_fn).then((options) => {
+  $.getJSON('./charts/' + chart_fn).then((options) => {
     // shift all data series to start at the same time for easy comparison
     options.series.forEach((s) => {
       if (!s.data || !s.data.length) {
@@ -55,7 +55,7 @@ const addChart2d = (id, chart_fn) => {
 };
 
 const addChart3d = (id, chart_fn) => {
-  $.getJSON('charts/' + chart_fn).then((options) => {
+  $.getJSON('./charts/' + chart_fn).then((options) => {
     extend(true, options, { subtitle: { text: chart_fn } });
     const chart = new Highcharts.Chart(id, options);
     $(chart.container).bind('mousedown.hc touchstart.hc', (eStart) => {
@@ -128,7 +128,7 @@ const FormControl = require('react-bootstrap').FormControl;
 const getChartList = () => {
   const tmp = $('<div></div>');
   return new Promise((resolve, reject) => {
-    tmp.load('/charts pre>a', () => {
+    tmp.load('./charts pre>a', () => {
       resolve(tmp.children().toArray().map(a => a.innerText));
     });
   });
@@ -172,7 +172,7 @@ const UI = React.createClass({displayName: "UI",
   render: function() {
     const fns2d = this.state['2d'].join(',');
     const fns3d = this.state['3d'].join(',');
-    const url = `/?charts2d=${fns2d}&charts3d=${fns3d}`;
+    const url = `./?charts2d=${fns2d}&charts3d=${fns3d}`;
     return (
         React.createElement(Grid, null, 
           React.createElement(Row, null, 
