@@ -1,4 +1,4 @@
-.PHONY : default 0821 0826 0826-hz10 0826-diff-cmp 0826-replicate8 0826-replicate14
+.PHONY : default 0821 0826 0826-hz10 0826-diff-cmp 0826-replicate08 0826-replicate10 0826-replicate12 0826-replicate14  0826-replicates
 
 default:
 	echo !
@@ -13,17 +13,21 @@ default:
 
 0826-replicate8: charts/0826-back-rp12-delivery-ratio-2d-replicate8-1.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-2.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-3.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-4.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-5.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-6.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-7.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-8.json
 
-0826-replicate14: charts/0826-back-rp12-delivery-ratio-2d-replicate14-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate14-1.json
+0826-replicates: 0826-replicate08 0826-replicate10 0826-replicate12 0826-replicate14 
 
-0826-replicate12: charts/0826-back-rp12-delivery-ratio-2d-replicate12-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate12-1.json
+0826-replicate08: charts/0826-back-rp12-delivery-ratio-2d-replicate08-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate08-1.json
 
 0826-replicate10: charts/0826-back-rp12-delivery-ratio-2d-replicate10-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate10-1.json
 
-charts/0826-back-rp12-delivery-ratio-2d-replicate%-1.json: workspaces/0826-back-rp12-raw-replicate%-1/log/rx $(addsuffix -replicate%-1/log/rx,$(addprefix workspaces/0826-back-rp12-ictl-cl,$(shell seq 1 7)))
-	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=2' 'ICTL CL=3' 'ICTL CL=4' 'ICTL CL=5' 'ICTL CL=6' 'ICTL CL=7' --paths $? --chart delivery-ratio-2d > $@
+0826-replicate12: charts/0826-back-rp12-delivery-ratio-2d-replicate12-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate12-1.json
 
-charts/0826-back-rp12-frame-bandwidth-2d-replicate%-1.json: workspaces/0826-back-rp12-raw-replicate%-1/log/tx $(addsuffix -replicate%-1/log/tx,$(addprefix workspaces/0826-back-rp12-ictl-cl,$(shell seq 1 7)))
-	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=2' 'ICTL CL=3' 'ICTL CL=4' 'ICTL CL=5' 'ICTL CL=6' 'ICTL CL=7' --paths $? --chart frame-bandwidth-2d > $@
+0826-replicate14: charts/0826-back-rp12-delivery-ratio-2d-replicate14-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate14-1.json
+
+charts/0826-back-rp12-delivery-ratio-2d-replicate%-1.json: workspaces/0826-back-rp12-raw-replicate%-1/log/rx $(addsuffix -replicate%-1/log/rx,$(addprefix workspaces/0826-back-rp12-ictl-cl,$(shell seq 1 7))) workspaces/0826-back-rp12-ictl-cl0-replicate%-1/log/rx 
+	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=2' 'ICTL CL=3' 'ICTL CL=4' 'ICTL CL=5' 'ICTL CL=6' 'ICTL CL=7' 'ICTL Adaptive' --paths $? --chart delivery-ratio-2d > $@
+
+charts/0826-back-rp12-frame-bandwidth-2d-replicate%-1.json: workspaces/0826-back-rp12-raw-replicate%-1/log/tx $(addsuffix -replicate%-1/log/tx,$(addprefix workspaces/0826-back-rp12-ictl-cl,$(shell seq 1 7))) workspaces/0826-back-rp12-ictl-cl0-replicate%-1/log/tx 
+	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=2' 'ICTL CL=3' 'ICTL CL=4' 'ICTL CL=5' 'ICTL CL=6' 'ICTL CL=7' 'ICTL Adaptive' --paths $? --chart frame-bandwidth-2d > $@
 
 charts/0826-back-rp12-delivery-ratio-2d-%.json : workspaces/0826-back-rp12-raw-%/log/rx workspaces/0826-back-rp12-ictl-cl1-%/log/rx workspaces/0826-back-rp12-ictl-cl4-%/log/rx
 	../chart-utils/main.js --names 'Raw' 'Raw Compressed' 'ICTL CL=4' --paths $? --chart delivery-ratio-2d > $@
