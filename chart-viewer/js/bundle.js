@@ -102,12 +102,12 @@ module.exports = () => {
         return;
       }
       const id = "chart-" + (++counter).toString();
-      $('#main').append('<div id="' + id +'"></div>');
+      $('#main').append('<hr><div id="' + id +'"></div>');
       addChartFunc(id, chart_fn);
     });
     return true;
   };
-  $('#main').append('<div><a href="/">Back</a></div><hr>');
+  $('#main').append('<div><a href="./">Back</a></div>');
   const ok2d = addChart('charts2d', addChart2d);
   const ok3d = addChart('charts3d', addChart3d);
   return (ok2d || ok3d);
