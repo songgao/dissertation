@@ -47,7 +47,7 @@ exports.area2d = (yAxisTitle) => {
     };
 
     // heuristic to detect delivery ratio charts
-    if (series[0].data[series[0].data.length/2][1] <= 1) {
+    if (series[0].data[Math.floor(series[0].data.length/2)][1] <= 1) {
       ret.yAxis.max = 1;
     }
 
