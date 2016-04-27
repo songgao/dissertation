@@ -19,7 +19,9 @@ class MetricEmitter extends EventEmitter {
     entry.time.setUTCMilliseconds(0);
     if (!this.this_second) {
       this._new_second(entry);
+      return;
     }
+
     let diff = entry.time.getUTCSeconds() - this.this_second.first.time.getUTCSeconds();
     if (diff < 0) { // second wrapped around from 59 to 0
       diff += 60;
