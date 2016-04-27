@@ -13,8 +13,14 @@ default:
 
 0826-replicate8: charts/0826-back-rp12-delivery-ratio-2d-replicate8-1.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-2.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-3.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-4.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-5.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-6.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-7.json charts/0826-back-rp12-delivery-ratio-2d-replicate8-8.json
 
-0826-replicates: 0826-replicate08 0826-replicate10 0826-replicate12 0826-replicate14 
+0826-replicates: 0826-replicate02 0826-replicate04 0826-replicate06 0826-replicate08 0826-replicate10 0826-replicate12 0826-replicate14 
 
+0826-replicate02: charts/0826-back-rp12-delivery-ratio-2d-replicate02-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate02-1.json
+
+0826-replicate04: charts/0826-back-rp12-delivery-ratio-2d-replicate04-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate04-1.json
+
+0826-replicate06: charts/0826-back-rp12-delivery-ratio-2d-replicate06-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate06-1.json
+	
 0826-replicate08: charts/0826-back-rp12-delivery-ratio-2d-replicate08-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate08-1.json
 
 0826-replicate10: charts/0826-back-rp12-delivery-ratio-2d-replicate10-1.json charts/0826-back-rp12-frame-bandwidth-2d-replicate10-1.json
