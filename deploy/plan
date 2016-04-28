@@ -2,12 +2,72 @@
 
 cd $(dirname $0)
 
-# ./run-and-wait 0826-front-raw-rp14 0826-back-raw-rp14
+./run-and-wait      0826-back-rp12-raw-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate02-{1..2}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate02-{1..2}
 
-./run-and-wait 0826-front-ictl-cl1-rp14 0826-back-ictl-cl1-rp14
-./run-and-wait 0826-front-ictl-cl2-rp14 0826-back-ictl-cl2-rp14
-./run-and-wait 0826-front-ictl-cl3-rp14 0826-back-ictl-cl3-rp14
-./run-and-wait 0826-front-ictl-cl4-rp14 0826-back-ictl-cl4-rp14
-./run-and-wait 0826-front-ictl-cl5-rp14 0826-back-ictl-cl5-rp14
-./run-and-wait 0826-front-ictl-cl6-rp14 0826-back-ictl-cl6-rp14
-./run-and-wait 0826-front-ictl-cl7-rp14 0826-back-ictl-cl7-rp14
+./run-and-wait      0826-back-rp12-raw-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate04-{1..4}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate04-{1..4}
+
+./run-and-wait      0826-back-rp12-raw-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate06-{1..6}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate06-{1..6}
+
+./run-and-wait      0826-back-rp12-raw-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate08-{1..8}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate08-{1..8}
+
+./run-and-wait      0826-back-rp12-raw-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate10-{1..10}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate10-{1..10}
+
+./run-and-wait      0826-back-rp12-raw-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate12-{1..12}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate12-{1..12}
+
+./run-and-wait      0826-back-rp12-raw-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl0-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl1-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl2-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl3-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl4-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl5-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl6-replicate14-{1..14}
+./run-and-wait 0826-back-rp12-ictl-cl7-replicate14-{1..14}
