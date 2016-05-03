@@ -2,7 +2,7 @@
 
 . ../deploy/settings
 
-WORKSPACES=$WORKSPACE/workspaces
+WORKSPACES=$WORKSPACE/workspaces.xz
 
 RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compress"
 

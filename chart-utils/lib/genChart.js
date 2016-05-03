@@ -3,11 +3,16 @@
 const fs = require('fs');
 const LineStream = require('byline').LineStream;
 const toArray = require('stream-to-array');
+const lzma = require('lzma-native');
 
 module.exports = (chart, files, chartTitle) => {
-  let data_promises = files.map( (file) => toArray(
-        fs.createReadStream(file.path).pipe(
-          new LineStream()).pipe(chart.stream())));
+  const streams = files.map( (file) => (
+        file.path.endsWith('.xz') ?
+        fs.createReadStream(file.path).pipe(lzma.createDecompressor()) :
+        fs.createReadStream(file.path)
+        ) );
+  const data_promises = streams.map( (s) => toArray(
+        s.pipe(new LineStream()).pipe(chart.stream())));
 
   Promise.all(data_promises).then((all) => {
     let series = all.map( (data, i) => ({
