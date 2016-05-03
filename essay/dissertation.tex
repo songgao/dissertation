@@ -1,0 +1,545 @@
+\documentclass[12pt]{report}
+\usepackage{auphd}     % For Ph.D.
+\usepackage{ulem}       % underlining on style-page; see \normalem below
+\usepackage{url}
+\usepackage{tikz}
+\usepackage{pgf}
+\usepackage{inconsolata}
+\usepackage{caption,subcaption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\lstset{tabsize=2,basicstyle=\footnotesize\ttfamily}
+
+
+%%%%%Format rules: Normal margins are 1 in. If you need to print with 1.5in margins, uncomment the line below
+%\oddsidemargin0.5in \textwidth6in
+
+%% If you do not need a List of Abbreviations, then comment out the lines below and the \printnomenclature line.
+%%for List of Abbreviations information:  (see http://www.mackichan.com/TECHTALK/509.htm  )
+\usepackage[intoc]{nomencl}
+\renewcommand{\nomname}{List of Abbreviations}   	       
+\makenomenclature 
+%% don't forget to run:   makeindex ausample.nlo -s nomencl.ist -o ausample.nls
+
+% May want theorems numbered by chapter
+\newtheorem{theorem}{Theorem}[chapter]
+
+% Put the title, author, and date in. 
+\title{Improving Vehicular Networking Reliability and Efficiency in Context of Platooning Applications Enabled by Dedicated Short Range Communication}
+\author{Song Gao} 
+\date{May, 2016} %date of graduation
+\copyrightyear{2016} %copyright year
+
+\keywords{Dedicated Short Range Communication, Wireless Access in Vehicular Environment, Computer Networks, Vehicular Networking, Wireless Networking, Vehicle Platooning, Emulation, IEEE 802.11, Compression, Bandwidth, Congestion, Reliability}
+
+% Put the Thesis Adviser here. 
+\adviser{Alvin Lim}
+
+
+% Put the committee here (including the adviser), one \professor for each. 
+% The advisor must be first, and the dean of the graduate school must be last.
+\professor{Alvin Lim, Chair, Associate Professor of Computer Science and Software Engineering}
+\professor{Saad Biaz, Professor of Computer Science and Software Engineering}
+\professor{Hari Narayanan, John H. and Gail Watson Professor of Computer Science and Software Engineering}
+\professor{Xiao Qin, Professor of Computer Science and Software Engineering}
+
+\begin{document}
+
+\begin{romanpages}      % roman-numbered pages 
+
+\TitlePage
+
+\begin{abstract} 
+  TODO
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\printnomenclature[1.0in] %used for the List of Abbreviations
+\end{romanpages}        % All done with roman-numbered pages
+
+
+\normalem       % Make italics the default for \em
+
+\chapter{Introduction and Motivation}
+Dedicated Short Range Communication (DSRC\nomenclature{DSRC}{Dedicated Short Range Communication}), is a communication technology designed for vehicular environments. By utilizing wireless radio, DSRC allows vehicles to communicate with nearby vehicles and road-side units efficiently. Wireless device vendors have been actively developing chipsets and integrated modules that provides DSRC support. Integrated devices that provides not only DSRC, but also supports for GPS and Controller Area Network (CAN\nomenclature{CAN}{Control Area Network}) bus are also in market \cite{aradasystems,denso,unex}. Automobile and transportation companies have also been actively integrating DSRC into vehicles and developing various DSRC-enabled applications.
+
+Thanks to its low latency advantage, DSRC enables various applications that, among many other benefits, can enhance safety by augmenting drivers' operating process. Many of such applications have been designed or prototyped. An intersection collision warning system, for example, can emit warning messages through DSRC when a vehicle is going too fast towards an intersection with red traffic light, so that other vehicles and pedestrians can be notified to avoid collision. As another example, an emergency braking warning system enables the vehicle to ``see" another vehicle in front braking hard when the line-of-sight is blocked by a large vehicle, so that the vehicle can promptly decelerate before the driver realizes the situation.
+
+Among many safety related DSRC applications, vehicle platooning, or cooperative adaptive cruise control, provides many incentives to commercial companies. It frees drivers from throttle and braking control by delegating it to the vehicle's computer system. In addition to the safety enhancement, platooning makes vehicles run closer to each other. This improves aerodynamic efficiency and results in lower fuel cost. This study starts from this use case, and tries to improve efficiency and reliability of vehicular networking.
+
+DSRC is a recent technology that was just standardized a few years ago. It has not been deployed to vehicles in market yet. Most studies have been about interactions with a few vehicles only. However, when the majority of vehicles on roads are equipped with DSRC, the wireless channels will be heavily occupied, and there can be scalability problems. TODO
+
+There are two major contribution is proposed study:
+\begin{itemize}
+  \item First, a wireless emulator is designed and implemented to emulate DSRC networks. It provides a way to test DSRC applications in a scalable way, using real application software. Unlike simulation approach where simulation scripts need to be written in order to test the idea, in the emulator the testing targets are application softwares that can be directly deployed to real-world devices.
+  \item Second, a compression technique, Interframe Compression Transmission Layer (ICTL\nomenclature{ICTL}{Interframe Compression Transmission Layer}), is introduced. The compression layer compresses the difference between consecutive frames, rather than the frames themselves. It reduces bandwidth usage in vehicular applications, particularly those that periodically sends messages that do not change dramatically. By reducing the bandwidth usage, it makes channel congestions less likely to happen.
+\end{itemize}
+
+The ICTL have been fully implemented, and tests have been conducted on the emulator to study the characteristics of the algorithm under different situations. TODO
+
+\chapter{Background}
+
+\section{Dedicated Short Range Communication}
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[width=.7\columnwidth]{figures/dsrc.pdf}
+    \caption{\label{fig:dsrc}DSRC protocol suite.}
+  \end{center}
+\end{figure}
+
+DSRC, also known as Wireless Access in Vehicular Environment (WAVE\nomenclature{WAVE}{Wireless Access in Vehicular Environment}), is a protocol suite designed for low latency networking in vehicular environments. The protocol suite \cite{kenney2011}, as illustrated in Figure~\ref{fig:dsrc}, is similar to TCP/IP over WiFi. In fact, it supports the IPv6 stack in parallel with a network and transport layer protocol called Wave Short Message Protocol (WSMP\nomenclature{WSMP}{Wave Short Message Protocol}) that is dedicated to the DSRC suite. Since the WSMP stack is required to be used in safety applications such as platooning, this study focuses on the WSMP branch of the protocol suite.
+
+\subsection{IEEE 802.11p}
+\label{sec:80211p}
+IEEE 802.11p is derived from IEEE 802.11a, an early 5 GHz protocol used in WiFi. The Federal Communications Commission (FCC\nomenclature{FCC}{Federal Communications Commission}) has allocated the spectrum from 5.850 GHz to 5.925 GHz, i.e., the ``5.9 GHz band", for DSRC operation in United States \cite{fcc59allocation}. This spectrum is divided into seven 10 MHz channels (channel 172, 174, 176, 178, 180, 182, 184) with 5 MHz guard band at the low end \cite{kenney2011}. Chanel $<174, 176>$ and $<180, 182>$ can be combined into 20 MHz channels. This spectrum is higher than the unlicensed 5.8 GHz spectrum used in the WiFi protocols, so DSRC applications do not suffer from interference generated by WiFi devices. As in the IEEE 802.11a protocol, the IEEE 802.11p uses Orthogonal Frequency Division Multiplexing (OFDM\nomenclature{OFDM}{Orthogonal Frequency Division Multiplexing}) for modulation and Carrier Sense Multiple Access/Collision Avoidance (CSMA/CA\nomenclature{CSMA/CA}{Carrier Sense Multiple Access/Collision Avoidance}) for medium access control.
+
+Table~\ref{tab:data_rate} shows data rates \cite{kenney2011} for different modulation types and coding rates. With the same modulation type and same coding rate, 10 MHz channel gets only half the data rate compared to 20 MHz channels. As a result, the available bandwidth in upper layer is reduced by half as well.
+
+\begin{table}[htb]
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|}
+      \hline
+      Modulation & Coding & Data rate & Data rate     \\
+      Type       & Rate   & 20 MHz    & 10 MHz        \\\hline
+      BPSK       & 1/2    & 6         & 3             \\\hline
+      BPSK       & 3/4    & 9         & 4.5           \\\hline
+      QPSK       & 1/2    & 12        & 6             \\\hline
+      QPSK       & 3/4    & 18        & 9             \\\hline
+      16-QAM     & 1/2    & 24        & 12            \\\hline
+      16-QAM     & 3/4    & 36        & 18            \\\hline
+      64-QAM     & 2/3    & 48        & 24            \\\hline
+      64-QAM     & 3/4    & 54        & 27            \\\hline
+    \end{tabular}
+    \caption{\label{tab:data_rate}Data Rate in Mbps for 10 MHz and 20 MHz channels}
+  \end{center}
+\end{table}
+
+Unlike other IEEE 802.11 protocols where stations have to join a Basic Service Set (BSS\nomenclature{BSS}{Basic Servie Set}) before they can transmit or receive data, IEEE 802.11p defines an Outside Context of BSS (OCB\nomenclature{OCB}{Outside Context of BSS}) mode for the WSMP branch of the protocol suite. In OCB mode, Basic Service Set Identification (BSSID\nomenclature{BSSID}{Basic Service Set Identification}) field of the frame header is set to a wildcard value \texttt{FF:FF:FF:FF:FF:FF}. It allows stations to transmit and receive data without registering with an infrastructure device or an existing Ad-hoc network. As a result, the time required to activate a wireless device is significantly reduced.
+
+In addition, the Media Access Control (MAC\nomenclature{MAC}{Media Access Control}) sub-layer has an extension that supports channel switching, defined in IEEE 1609.4 \cite{ieee16094}. One of the seven 10 MHz channels is dedicated as the control channel (CCH\nomenclature{CCH}{Control Channel}) while others work as service channels (SCHs\nomenclature{SCH}{Service Channel}). Channel switching allows concurrent access of CCH and SCHs. This is achieved by dividing each 100 milliseconds into a 46 milliseconds CCH interval and a 46 milliseconds SCH interval, each followed by a 4 milliseconds guard interval. Inheritently, channel switching reduces usable bandwidth of the CCH to about half of that without channel switching.
+
+\subsection{Wave Short Message Protocol}
+WSMP, defined in IEEE 1609.3 \cite{ieee16093}, is the networking service in DSRC and serves the purposes of the network layer and transport layer from the TCP/IP stack. WSMP defines a message type that is efficient for 1-hop transmission. The message type is called Wave Short Message (WSM\nomenclature{WSM}{Wave Short Message}), whose minimum header size is 5 bytes, as shown in Table~\ref{tab:wsm}. Compared to UDP over IPv6, which is a similar configuration in the TCP/IP protocol stack that requires a minimum of 52 bytes of header, WSM's overhead is much smaller and causes less congestion. Since channel congestion is a significant concern in DSRC, the efficiency of WSMP is quite valuable \cite{kenney2011}. On the other hand, being such a minimum protocol, WSMP does not provide many powerful transport layer functionalities other than multiplexing, which is achieved through the Provider Service Identifier (PSID\nomenclature{PSID}{Provider Service Identifier}) field in the WSM header.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+      \hline
+      Version & PSID      & Extension   & Element ID & Length  & Payload \\ \hline
+      1 byte  & 1-4 bytes & variable    & 1 byte     & 2 bytes & variable \\ \hline
+    \end{tabular}
+    \caption{\label{tab:wsm}WSM Header}
+  \end{center}
+\end{table}
+
+\subsection{Message Sub-layer}
+On top of WSMP layer is the Message Sub-layer, which provides direct support to applications. An important standard in this layer is the SAE J2735 DSRC Message Set \cite{sae2016j2735}. J2735 defines many messages types that vehicular applications can utilize. The messages are encoded using ASN.1 format and always transmitted with WSMP. Each message is defined as a collection of constituent data structures called data elements and data frames. A data element is the most basic data structure in the J2735 standard. A data frame is a more complex data structure, composed of one or more data elements or other data frames. \cite{kenney2011} These data structures carry various information related to vehicular environment, from geometries of vehicle body to the dynamics of a running vehicle.
+
+\section{Vehicle Platooning}
+Vehicle platooning is one of safety applications that DSRC enables. In vehicle platooning, Cooperative Adaptive Cruise Control (CACC\nomenclature{CACC}{Cooperative Adaptive Cruise Control}) plays an important role. CACC is based on Adaptive Cruise Control (ACC\nomenclature{ACC}{Adaptive Cruise Control}, also known as Autonomous/Active Cruise Control), which in addition to maintaining speed like normal Cruise Control, can adjust vehicle speed based on distance between the vehicle and other vehicles in front of it, i.e., headway distances. The distance detection relies on radar sensors mounted at the front of the vehicle. Due to the latency from the moment when a front vehicle brakes to the moment when the ACC enabled vehicle reacts to the decreased headway, safe following distance is still quite high in ACC systems. In CACC, however, headway distance can be further decreased without introducing extra safety issues. As shown in Figure~\ref{fig:brake}, this is achieved by a signaling mechanism that results in shorter reaction time in case front vehicle is braking. In this mechanism, as soon as the front vehicle's driver hit the brake pedal, even before the front vehicle starts to decelerate, the braking signal is broadcast through DSRC, making the vehicle following closely aware of the situation and brake in advance. Since this mechanism does not completely rely on actual headway distance change and sensor accuracy, the headway distance can be further reduced, to the point where aerodynamic context can change significantly.
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[width=.7\columnwidth]{figures/brake.pdf}
+    \caption{\label{fig:brake}CACC shortcuts control flow of ACC thus reduces reaction time.}
+  \end{center}
+\end{figure}
+
+Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational}, and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in trucking industry, the single largest operating cost is disel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
+
+\section{Real-world Performance Attributes of DSRC in Platooning Scenarios}
+
+\label{sec:background_realworld_performance}
+
+In real-world, antenna's mounting position matters, because vehicle body can block line-of-sight and affects wireless propagation. The vehicle body can block the line-of-sight between the vehicle's antenna and vehicles next to it. The problem becomes more outstanding for large size vehicles like semi-trailer trucks. To solve this problem, many researchers and engineers choose to mount two DSRC antennas on the vehicle \cite{Bergenhem20121222,peloton}. Many DSRC device vendors provide devices with two antenna interfaces \cite{aradasystems,denso,unex}.
+
+A straightforward and easy-to-implement way to make the communication more reliably with dual-antenna design is to replicate each message on both antennas. In other words, DSRC stack is configured to use both antennas alternately, and each message is sent twice through DSRC. This way, as long as one side of antennas makes it through, the message can be delivered. It improves reliability but uses bandwidth twice as much, causing more channel congestion.
+
+To obtain better understanding on how well DSRC can support platooning applications, we have an experimental study in which we conducted extensive real-world DSRC tests using two semi-trailer trucks\cite{songDSRC2016}, primarily focusing on delivery ratio of broadcast messages under various circumstances and with different parameters. Tests taken in this study included a set of dynamic tests run on a 1.7-mile test track as a general case, and a few sets of static tests as case studies for particular scenarios, such as when the road was not horizontal or when the front vehicle was turning.
+
+In the study we used three antenna operating mode: alternate, left, and right. For alternate mode, we introduced pairwise delivery ratio. It is similar to the normal delivery ratio, except that it represents the ratio of the messages delivered from either of a pair of antennas to the total pairs of messages sent. In pairwise delivery ratio, delivery of any one of a pair of duplicate messages indicates successful transmission of the pair. 
+
+The study concluded that many factors can result in reduction in delivery ratio for broadcast messages. For example,
+
+\begin{itemize}
+  \item if the front vehicle is turning, outside antenna is blocked by the vehicle body and results in poor delivery ratio;
+  \item on straight road, some terrain can affect delivery ratio significantly;
+  \item on hilly road, vehicle needs to rely on terrain's reflection because antennas are not parallel.
+\end{itemize}
+
+However, in all scenarios, using alternate mode improves delivery ratio significantly. To be more specific, the pairwise delivery ratio is above $90\%$ for data rates up to 6 Mbps in all scenarios, even when using a side antenna only delivers less than $20\%$ messages. In some scenarios, alternate mode even achieves above $90\%$ delivery ratio for 27 Mbps. \cite{songDSRC2016} For the dissertation, this is an important conclusion from the study. It suggests that it is most feasible to use alternate mode all the time. Since alternate mode requires more bandwidth usage, how to reduce bandwidth while maintaining reliability becomes a more important issue to solve.
+
+\chapter{Emulation Infrastructure}
+
+\section{Problem Statement}
+\label{sec:problem_validation}
+
+In networking, there are three approaches to validate an algorithm, a protocol, or an idea: real-world experiments, simulations, and emulations.
+
+In real-world experiments, real wireless devices, such as DSRC radios, or laptops with WiFi cards, are used. An operating system with complete networking stack is installed on such device, and applications can use various APIs to access the wireless hardware and do real wireless communication The algorithm being validated runs on top of existing protocols, or replaces an existing software component running on the device. Real-world experiments provide the most realistic results, since they are real experiments using hardware and software components that are used in real-world. The disadvantage of real-world experiments is that they are hard to conduct and require expensive devices and human resources to scale.
+
+In simulation approach, everything is replaced by software components. A common way to implement network simulation is to use a discrete event simulator. The simulator converts the complex system into an ordered sequence of well defined events. The more specific the events are, the more accurate the simulation results will be, and the more time it will take to run the simulation. It is normally easier to scale to large number of nodes with simulation, but since all hardware and software components are simulated, the accuracy of the simulation results largely relies on the quality of simulation models of each layer being simulated.
+
+Emulations are a balance between real-world experiments and simulation approach. In emulations, some parts of the system are replaced by a piece of hardware, or software model, and the rest still uses real components that are identical to what are used in real-world.
+
+For vehicular applications, particularly platooning applications, it is too risky and expensive to jump to real-world experiments with large number of vehicles. For example, placing several platoons of two-vehicle pairs on different lanes of a segment of a highway would affect the normal traffic and is costly by itself. On the other hand, DSRC stack consists of many layers that are not formerly available through TCP/IP stack. Thus, simulations models are limited. Without willing to sacrifice much accuracy, emulation is the best approach to take.
+
+There are a few hardware channel emulators for 802.11 channels available. They replace part of physical layer of the networking stack, and are primarily designed for wireless hardware (e.g. chipsets) testing. They require expensive hardware components and do not scale well. Hence, hardware channel emulators are not suitable for this study as well.
+
+To emulate vehicular environment for testing platooning application, it is necessary to develop a software solution that can support large number of nodes, each of which has an independent networking stack, using reasonable amount of hardware resources.
+
+
+\section{Related Work}
+
+Most of non-experimental vehicular networking study has been focused on simulation approach. Popular simulators include but not limit to ns-2, ns-3\cite{henderson2008network}, and OMNeT++\cite{varga2008overview}. Simulation models have been developed for ns-2 \cite{Chen2006ns2} and ns-3 \cite{Arbabi2010ns3,benin2012ns3}. There are also integrated vehicular networking simulators such as Vehicular Networks Simulator \cite{fernandes2012} which is compatible with both ns-3 and OMNeT++. However, as discussed in Section~\ref{sec:problem_validation}, simulation approach requires simulation scripts to be written to describe the application or protocol being tested, and the accuracy largely relies on the quality of simulation models as well as the testing target scripts.
+
+An emulated Dynamic Switch was proposed in \cite{lin2004mobile}. It is a reconfigurable Ethernet switch. A master node with many Ethernet ports internally tracks positions of all emulated nodes. Emulated nodes connect to the master node through Ethernet. When packets go through the master node, the master determines whether the packet should be delivered based on virtual positions assigned to each node. The Dynamic Switch can emulate connectivity pretty well, but it does not emulate interference. As a result, nodes will get same throughput no matter the channel is congested or not.
+
+The U.S. Naval Research Lab has developed Extendable Mobile Ad-hoc Network Emulator (EMANE) \cite{EMANE}. It is the most similar to the emulator proposed in this study, and achieve roughly the same goal. Comparing the two, the emulator proposed in this study has simpler design and uses more straight-forward configuration format than EMANE, and is written in a safer language (Go vs C++) that supports static linking, which enables easier deployment in clusters. In addition, EMANE is a general emulation framework, but does not have specific support towards vehicular network like the proposed emulator.
+
+\section{Emulator Design}
+\subsection{Overview}
+
+In this study, an 802.11 emulation framework called squirrel is developed, with a goal of trying to use as much real-world software components as possible. Conceptually, as shown in Figure~\ref{fig:squirrel_concept}, squirrel replaces the wireless hardware, device driver's Hardware Abstract Layer (HAL\nomenclature{HAL}{Hardware Abstract Layer}), and 802.11 kernel module. Layers above MAC layer are not replaced by squirrel, and run real software that is identical to what can be deployed in real-world. Figure~\ref{fig:squirrel_dsrc} shows how squirrel emulator fits in the DSRC stack.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{figures/squirrelConcept.pdf}
+    \caption{\label{fig:squirrel_concept}Layer Concept of Squirrel Emulator}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{figures/squirrelDSRC.pdf}
+    \caption{\label{fig:squirrel_dsrc}Squirrel Emulator in DSRC Context}
+  \end{center}
+\end{figure}
+
+\subsection{Architecture}
+Squirrel uses a multitier architecture, where a master component (\texttt{squirrel-master}) works as server and coordinate communication among all participating nodes, and a worker component (\texttt{squirrel-worker}) works as client and handles communication details on actual nodes. There is only one \texttt{squirrel-master} in an emulation. It has an internal wireless model which determines whether data should be delivered on a frame-by-frame basis. \texttt{squirrel-worker} component, on the other hand, has one instance running for each node being emulated. It connects the wireless components being tested with the \texttt{squirrel-master}, and handles the ``first mile" and ``last mile" of the network traffic.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{figures/squirrelArch.pdf}
+    \caption{\label{fig:squirrel_arch}Squirrel Architecture and an Example Data Flow}
+  \end{center}
+\end{figure}
+
+Figure~\ref{fig:squirrel_arch} illustrates the multitier architecture of squirrel emulator. Each host is a computer domain that has independent or isolated networking stack. It can be a real computer system with independent hardware, a virtual machine, or an operating system level virtualization (OSLV\nomenclature{OSLV}{Operating System Level Virtualization}) host such as a Linux Container and a BSD-jail. Among the three options, OSLV has the lightest overhead thus is most scalable. It allows different hosts share a same operating system kernel and relies on kernel namespace for isolation in filesystem and networking stack.
+
+Squirrel uses a TAP\cite{tuntap} interface, \texttt{tap0} as in Figure~\ref{fig:squirrel_arch}, in each emulated wireless node as emulated wireless network interface. A TAP interface is a virtual network device that only exists in operating system kernels. It provides MAC layer frame reception and transmission for user space programs. From an application's perspective, the \texttt{tap0} interface can be seen as an Ethernet device, which, instead of receiving packets from a physical wireless network device, receives them from \texttt{squirrel-worker} and instead of sending packets via a physical wireless network device, writes them to \texttt{squirrel-worker}. \texttt{squirrel-worker} has a file descriptor through which it can handle the \texttt{tap0} interface. Whenever an application writes any data into the \texttt{tap0}, or any traffic is routed through the interface, \texttt{squirrel-worker} receives the data through the file descriptor. Whenever \texttt{squirrel-worker} writes into the file descriptor, a MAC frame is generated in kernel just like incoming traffic on a real device, and results in data received in the corresponding application.
+
+\texttt{squirrel-worker} uses \texttt{eth0} interface to communicate with \texttt{squirrel-master}. This interface is not managed by squirrel emulator, but an Ethernet interface managed by the operating system. If the emulated node is a real computer device, \texttt{eth0} is mapped to a real Ethernet adapter. If the emulated node is a virtual machine or OSLV host, it is a virtualized interface managed by the virtualization layer. Conceptually, this interface should be considered as a real Ethernet interface that connects to \texttt{squirrel-master} either directly or through a Ethernet bridge. \texttt{eth0} is never used by testing targets directly, but an interface used by the squirrel emulator to coordinate traffic.
+
+An example data flow is also shown in Figure~\ref{fig:squirrel_arch}, where emulated node 1 (host 1) is sending data to emulated node 2 (host 2). The data flows from testing target into \texttt{tap0}, which is read by \texttt{squirrel-worker} as MAC frames, and encapsulated into squirrel's packet, then sent to \texttt{squirrel-master} through \texttt{eth0}. The \texttt{squirrel-master} upon receiving a frame, applies the wireless model and determines whether it should be delivered to the destination node. If so, it sends the frame packet to host 2, which is parsed into a MAC frame by \texttt{squirrel-worker}, and written into the \texttt{tap0} interface on host 2. The testing target then reads the data from \texttt{tap0} interface.
+
+Squirrel master has two important components: a mobility manager and a wireless model. Both of them are configurable through a plug-in system. The mobility manager emulates the mobility of all emulated nodes. It keeps track of positions of each node, and update them periodically. These position information is used by the networking model to determine (see Section~\ref{sec:squirrel_model}) whether a frame should be delivered to its destination.
+
+\subsection{CSMC/CA Model}
+\label{sec:squirrel_model}
+
+TODO overview
+
+In Ethernet, collision domain is bounded to well controlled hardware components such as Ethernet wires and hubs. In wireless networking, however, since electro-magnetic wave propagates freely, the collision domain is much larger and the bounds are less pronounced. This introduces some challenges specific for wireless networking. A typical one is the hidden node problem, where a node transmitting to a second node may not see other nodes that are in interference range of the second node but not the first one, causing collision at second node. This is the motivation that led to to design of collision avoidance in CSMA/CA algorithm that is widely used in 802.11 networks.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{figures/csmaca.pdf}
+    \caption{\label{fig:csmaca}A CSMA/CA Algorithm Timeline of Sending a Data Frame}
+  \end{center}
+\end{figure}
+
+Figure~\ref{fig:csmaca} shows a typical timeline of sending a data frame CSMA/CA algorithm. In CSMA/CA, when a node needs to transmit a data frame, it first senses the medium, i.e., the wireless channel. When the channel has been idle for a predefined period of time, Distributed coordination function Inter-Frame Space (DIFS\nomenclature{DIFS}{Distributed coordination function Inter-Frame Space}), it starts a random Back-Off time counter (BO\nomenclature{BO}{Back-Off time counter}), which is equal to a number of $aSlotTime$ within Contention Window (CW\nomenclature{CW}{Contention Window}). The counter decrements when the medium is idle. When BO hits zero, the data frame is transmitted. If this is a broadcast frame, that is the end of cycle for this frame. If this is a unicast frame, when the frame is successfully received at destination, the destination node waits for Short Inter-Frame Space (SIFS\nomenclature{SIFS}{Short Inter-Frame Space}), which is shorter than DIFS, and then transmits an Acknowledgement Frame (ACK\nomenclature{ACK}{Acknowledge Frame}). The ACK allows the source node to be notified about the reception of the frame at destination node. If a frame is lost, the source retransmits the frame, and at the same time, increases the CW. When a frame is successfully transmitted, CW is reset to lowest value. Following this process, the time it takes to typically transmit a data frame, $T_{data}$, can be modeled with Equation~\ref{eq:csmaca_send_data}:
+
+\begin{equation}
+  T_{data}=t_{busy}+t_{DIFS}+t_{BO}\times aSlotTime+t_{data}
+  \label{eq:csmaca_send_data}
+\end{equation}
+
+, where $t_{busy}$ is the time duration that the channel is busy, including partial DIFS's, as well as busy time during BO, and $t_{data}$ is the time duration it takes to encode the actual data frame. The time it takes to transmit an ACK, $T_{ACK}$, can be modeled with Equation~\ref{eq:csmaca_send_ack}:
+
+\begin{equation}
+  T_{ACK}=t_{SIFS}+t_{ACK}
+  \label{eq:csmaca_send_ack}
+\end{equation}
+
+, where $t_{ACK}$ is the time duration it takes to encode the actual ACK.
+
+In 802.11 protocols, DIFS is defined as $SIFS + 2 \times aSlotTime$. In 802.11p with 10MHz channel, SIFS is defined to be 13 microseconds, and $aSlotTime$ is defined as 32 microseconds. CW's lowest value is 15, and the maximum that CW can grow into is 1023. \cite{ieee201280211macphy}
+
+Unlike in real-world, where the CSMA/CA algorithm can rely on network adapter to sense whether channel is available to use, in emulation, the model needs to approximately keep track of localized channel condition of each node. To be more specific, it needs to keep track of how much of the channel time is being used around each node being emulated. When a node needs to transmit, or when other nodes need to transmit to the node, the model needs to check the channel condition around this node, and determines whether the channel is available for the data to be delivered. This is achieved by using the leaky bucket algorithm. Leaky bucket algorithm \cite{turner1986,yin1991} is commonly used in networking to shape and/or enforce throughput. The idea is to have a counter, i.e., the bucket, that is incremented whenever a packet goes through, and is decremented periodically. If the counter exceeds a threshold upon being incremented, the network discards the packet. The rate at which the counter is decremented determines the average bandwidth. Figure~\ref{fig:leaky_bucket} shows the leaky bucket analogy.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{figures/leakyBucket.pdf}
+    \caption{\label{fig:leaky_bucket}The leaky bucket analogy}
+  \end{center}
+\end{figure}
+
+In squirrel's 802.11 model, one leaky bucket is allocated for each node to track the channel condition around the node. The unit used for the counter is nanosecond. The rate at which the bucket leaks, i.e., counter decrements, is as same as the rate at which time elapses, i.e. $1e9$ per second. The counter is increased whenever an even happens, and the amount it increases is the time it takes to for the event to happen. When the bucket is full, it indicates that the channel is congested around the corresponding node, and no more frames can be delivered to the node or sent from the node at the time.
+
+Tracking channel condition with leaky buckets takes care of the process of ``carrier sensing". That is, in the emulation model, nodes do not actually sense the medium, but starts DIFS and BO directly for each transmitting frame. This eliminates the $t_{busy}$ in Equation~\ref{eq:csmaca_send_data}. So the equation for calculating time duration to transmit a data frame $T_{data}$ in the emulation model is Equation~\ref{eq:csmaca_squirrel_send_data}:
+
+\begin{equation}
+  T_{data}=t_{DIFS}+\frac{t_{cw}}{2}\times aSlotTime+t_{data}
+  \label{eq:csmaca_squirrel_send_data}
+\end{equation}
+
+, where $t_{cw}$ is the current effective CW. Since BO is uniformly distributed in $[0,CW]$, $\frac{t_{cw}}{2}$ is used as BO here to reduce time complexity if the model. Equation for calculating time duration to transmit an ACK remains the same as Equation~\ref{eq:csmaca_send_ack}.
+
+In addition to the leaky buckets, squirrel's CSMA/CA model also uses a probability function $P_{propagation}$ to model the process of propagation of electro-magnetic wave. The probability function, as defined in Equation~\ref{eq:propagation_prob}, is based on the distance between source and destination nodes, as well as channel occupancy level, i.e., how full the bucket is.
+
+\begin{equation}
+  P_{propagation}=((1-u) * 0.1 + 0.9) * (1-(\frac{d}{r})^3)
+  \label{eq:propagation_prob}
+\end{equation}
+
+, where $u(0\le u\le 1)$is the usage ratio of the bucket, $d$ is the distance between source and destination nodes, and $r$ is the transmission range.
+
+Putting it together, when a node transmits a unicast data frame, squirrel's CSMA/CA model first tries to increment the bucket of the source node. If successful, it tries to increment all buckets within the interference range of the source node, based on Equation~\ref{eq:csmaca_squirrel_send_data}. If the destination bucket does not overflow, the probability function $P_propagation$ as defined in Equation~\ref{eq:propagation_prob} is applied. If the frame survives the probability function, the frame is delivered to the destination node. Any failure in this process results in retransmission, until the maximum number of transmission is reached. If the data frame is delivered to the destination node, the model starts the ACK process in which the destination node sends an ACK back to source node. This is a similar process, which includes incrementing buckets of nearby nodes, as well as the probability function. Although at this point, the data frame is for sure delivered to the destination node, the ACK can still be lost, in which case a retransmission still happens. Broadcast frames are handled in the same way, except that the model tries to deliver the data frame to all nodes within transmission range, and that there is not ACK process.
+
+
+\subsection{gRPC Updated Mobility Model}
+
+TODO
+
+\section{Implementation and Deployment}
+
+We implement a prototype of squirrel emulator. To validate the basic idea of squirrel emulator, some preliminary tests are conducted to study how realistic squirrel's interference emulation is. As a comparison, tests are run on Android tablets in addition to the squirrel emulator. Testing applications and parameters are the same for both configuration.
+
+The squirrel emulator is deployed in a CoreOS\footnote{\url{https://coreos.com/}} managed container cluster on a dedicated physical machine, which does not have any unrelated processes running during the time when tests are running. The Android tablets used have CyanogenMod\footnote{\url{http://www.cyanogenmod.org/}} installed instead of the stock Android operating system. This allows the device to work in Ad-Hoc mode.
+
+There are four nodes involved in the tests. In Android configuration, the four nodes are connected to an Ad-Hoc WiFi network at 2.4 GHz, placed right next to each other. with distance less than 100 millimeters. In squirrel configuration, the four emulated node are placed 150 units from each other, with communication range set to 150,000 units and interference range set to 300,000. In other words, in both configurations the nodes are very close to each other so that interference rather than distance is the major affecting factor to wireless performance.
+
+A simple networking testing tool, \texttt{iperf}, is used as testing target. UDP traffic is used since it does not have congestion control, and gives a good perception of above-MAC-layer throughput. Two pairs of \texttt{iperf} tests are run, between two different pairs of nodes. The first pair (node1 to node2) starts first. It is set to run for 30 seconds. The second pair (node3 to node4) starts when the first has started for 10 seconds, and runs for 10 seconds. This way, during the first and last 10 seconds, only one pair of nodes are transmitting, while from 10th second and 20th second, both pairs are transmitting.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{subfigure}[h]{0.48\textwidth}
+      \includegraphics[width=\textwidth]{figures/squirrel/android.pdf}
+      \caption{\label{fig:squirrel_preliminary_android}Real Android UDP Throughput}
+    \end{subfigure}
+    \begin{subfigure}[h]{0.48\textwidth}
+      \includegraphics[width=\textwidth]{figures/squirrel/squirrel.pdf}
+      \caption{\label{fig:squirrel_preliminary_squirrel}Squirrel Emulator UDP Throughput}
+    \end{subfigure}
+    \caption{\label{fig:squirrel_preliminary}Preliminary Squirrel Testing Results: UDP Throughput in Android v.s. Squirrel Emulator}
+  \end{center}
+\end{figure}
+
+Figure~\ref{fig:squirrel_preliminary} shows the UDP throughput result from Android tablets and squirrel emulator. They both show that, in the first 10 seconds the first pair (node1 to node2) gets about 33 Mbps throughput. After the second pair (node3 to node4) starts at 10th second, the first pair's throughput drops to below 20 Mbps, while the second pair gets roughly the same level of throughput.
+
+The general trends match very well between Android and squirrel configuration, and show results just as expected. Squirrel is able to emulate interference based on positions of emulated nodes even though the traffic are between two different pairs that are completely independent. The difference is that, there seems to be more randomness in Android test. This is likely due to networking channel condition variations due to external factors such as other non-controlled devices using 2.4 GHz, or even a microwave oven. The randomness can be added to squirrel emulator as well.
+
+\chapter{Inter-frame Compression Transport Layer}
+
+\section{Problem Statement}
+\label{sec:problem_congestion}
+
+In many cases for 802.11 communication, channel congestion is a key issue that affects performance, and needs to be relieved through various techniques. For DSRC channel congestion becomes a more important issue to consider, especially when the technology deployment scales to all vehicles on the road. There are several key factors that makes congestion problems in DSRC applications, especially safety application, more challenging:
+
+\begin{enumerate}
+  \item DSRC uses 10 MHz, for the purpose of support many parallel types of applications. However, the narrower channel width means the available bandwidth for the same channel is significantly reduced. Although applications can use different channels through channel switching, only the control channel is guaranteed to be accessed in every 100 millisecond window. Crucial safety application like vehicle platooning is less tolerable to channel unavailability, thus is likely to use control channel or a dedicated safety channel that has performance guarantees. As a result, 10 MHz channel width brings extra challenge to safety applications.
+  \item As described in Section~\ref{sec:background_realworld_performance}, previous study \cite{songDSRC2016} has shown that using two antennas on each vehicle and sending each message once on each antenna can significantly improve message delivery ratio. It is likely that the industry will adopt this approach more widely. This implies that twice as much of bandwidth would be required for the same application layer communication strategy, causing more pressure on the channel.
+  \item The term ``Short Range" in DSRC is meant to convey that the communication range is shorter than cellular and WiMax services, but is still expected to reach a few hundred meters \cite{kenney2011}, which is much longer than the range of a typical WiFi deployment. Longer communication range means larger interference range. As a result DSRC causes congestion more easily than other 802.11 based protocols suites.
+  \item Safety applications require real-time low latency data, thus is less tolerable to channel congestion. For example, in vehicle platooning, the back vehicle relies on periodical dynamics data from the front vehicle to maintain a close following distance. When channel is congested, several message can be lost consecutively. In this case, the back vehicle has to make the worst assumption about the front vehicle, and apply maximum braking in order to avoid collision.
+\end{enumerate}
+
+To show channel congestion can be easily triggered in platooning applications, some calculation is shown to estimate bandwidth usage in a typical platooning scenario on a busy segment of a highway environment. For analysis purposes, several assumptions are made to assemble a reasonable heavy-use case:
+
+\begin{enumerate}
+  \item Average following distance: 10 meters. Study \cite{watts2015computational} has shown that fuel saving is significant when following distance is below 40 feet (about 13.3 meters). Volve \cite{volvo2015} has done real-world experiments with following distance of 7 meters. When there is traffic jam, following distance can be further reduced. Thus, assuming nearly full market penetration of Intelligent Transportation System (ITS\nomenclature{ITS}{Intelligent Transportation System}), 10 meters (or 0.33 seconds headway at 110 km/h) is a reasonable assumption for a moderately heavy-use case.
+  \item Platooning message size: 150 bytes. SAE J2735 defines BasicSafetyMessage (BSM\nomenclature{BSM}{BasicSafetyMessage}), which includes various vehicle information helpful to vehicular safety applications. It has about 50 bytes of data that is requires portion and appears in every transmission. After the required portion, vendors can attach proprietary data structures. Since the required portion of BSM is not sufficient for platooning applications, the industry normally uses the custom portion extensively. Appendix~\ref{apx:bsm_vendor} shows a typical data structure for this purpose. It adds up to 107 bytes. Along with the required portion of BSM, 150 bytes is a reasonable assumption.
+  \item Total lanes: 10. In urban area, it is common for highways to have 5 lanes per direction at busy segments, especially near an interchange. In some cases, there are multiple highways in the same area, making congestion easier to happen. An example is an area\footnote{\url{https://www.google.com/maps/@33.6205067,-84.4576489,1936m/data=!3m1!1e3}} near Atlanta airport in US, where the Interstate 285 has 5 lanes per direction, with other roads or highways nearby. Thus, it is reasonable to use 10 lanes (for both directions) in analysis for heavy-use cases.
+  \item Interference range: 400 meters. Interference range is larger than effective communication range. With DSRC ratios designed to reach several hundred meters, 400 meters' interference range is a reasonable assumption.
+  \item MAC layer data rate: 6 Mbps. Study \cite{songDSRC2016} shows that even using alternate mode, the delivery ratio may drop significantly above 6 Mbps. Safety applications like platooning requires high reliability, so it is assumed that the 6 Mbps is selected all the time. This is not the most conservative choice. In some scenarios, 3 Mbps may be used to achieve higher reliability.
+  \item Platooning message rate: 20 Hz. This assumes dual-antenna configuration and alternate mode. In other words, at 20 Hz, the effective message rate is 10 Hz, or one message every 100 milliseconds. 100 milliseconds results in about 3 meters in distance at a speed of 110 km/h. Depending on the braking system performance of the vehicle, this normally means tolerance of no more than 2 consecutive message losses before the control system has to conservatively apply a hard braking.
+\end{enumerate}
+
+Consider a target vehicle on a busy segment of a highway. With 400 meters' interference range, the vehicle is interfered by vehicles within 400 meters radius, which means an 800 meters long segment on the highway. Assuming full market penetration and full road utilization, linear vehicle density is $\frac{1 vehicle}{10 (meters*lane)}=0.1 vehicle/meter/lane$. With 10 lanes in total for both directions, there are $800 meters * 10 lanes * 0.1 vehicle/meter/lane = 800 vehicles$ within the interference range. At 20 Hz per vehicle, messages are being sent at $800 vehicles * 20 Hz/vehicle=16,000 Hz$ within the interference range. Multiplying this by the message size 150 bytes, the total bandwidth usage can be calculated as $16,000 Hz * 150 bytes = 2.4 MBps$, or 19.2 Mbps.
+
+With variables defined as in Table~\ref{tab:bandwidth_equation_variable}, the calculation above can be represented in a streamlined equation as shown in Equation~\ref{eq:bandwidth}.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{r l}
+      \hline
+      Varible & Definition \\ \hline
+      B & Demanded bandwidth usage within interference range \\
+      r & Interference range \\
+      l & Total number of lanes in both directions \\
+      d & Average following distance \\
+      s & Platooning message size \\
+      f & Frequency at which platooning messages are sent \\ \hline
+    \end{tabular}
+    \caption{\label{tab:bandwidth_equation_variable}Variable definition for Equation~\ref{eq:bandwidth}}
+  \end{center}
+\end{table}
+
+\begin{equation}
+  B=\frac{2r}{d} * l * s * f = \frac{2 * 400m/lane}{10m/vehicle} * 10 lanes * 150 bytes * 20 Hz/vehicle = 2.4 MB/second = 19.2 Mbps
+  \label{eq:bandwidth}
+\end{equation}
+
+19.2 Mbps is already greater than the MAC layer data rate 6 Mbps. Furthermore, due to the channel switching strategy defined in IEEE 1609.4 (see Section~\ref{sec:80211p}), only half of the channel time can be used. This reduces the available data rate to 3 Mbps. Other than this, there are MAC layer overheads, such as the contention window and various spacing in CSMA, management frames and control frames. These overheads further reduces the available bandwidth available for upper layers.
+
+Even worse, the assumptions that lead to 19.2 Mbps are merely a heavy-use case rather than the worst case. In situations such as slow traffic where vehicles are more close to each other, the demanded bandwidth usage within the interference range can be even higher.
+
+In conclusion, the DSRC technology cannot support the platooning applications in the way they are currently designed. It is necessary to apply various techniques to reduce bandwidth usage in platooning applications in order to avoid channel congestion.
+
+\section{Related Work}
+
+In \cite{Wang2008howmuch}, the authors found that non-safety use of DSRC may have to be severely restricted during peak hours of traffic to insure that automotive safety is not compromised. This is consistent with the analysis in Section~\ref{sec:problem_congestion}.
+
+Study \cite{huang2010adaptive} proposed an adaptive congestion control method that adapts communication rate and power based on the dynamics of a vehicular network and safety-driven tracking process. In \cite{fallah2010occupancy}, authors studied the relationship between channel occupancy, as a readily available feedback measure, controllable network parameters, and network performance, and proposed a closed loop congestion monitoring and control based on limited feedback from the network. Study \cite{Kenney2011linear} proposed a linear message rate control algorithm, which rather than using a binary control, takes advantage of full precision control inputs that are available on the wireless channel.
+
+These techniques in vehicular networks reduces bandwidth usage by various congestion control methods. They reduce bandwidth usage of vehicular applications significantly, but takes a different approach than this study. They make decisions on when to limit message rate or transmitting powers, but do not alter content of data being transmitted. Hence, to transmit the same amount of data, the required bandwidth is not reduced. In this study, however messages being transmitted inspected and compressed, thus the bandwidth requirement for a given amount of information transmitted is reduced.
+
+TODO: mention SAE j2945.1
+
+\section{ICTL Overview}
+
+To reduce bandwidth usage for platooning application and potential other vehicular applications, a transmission mechanism that uses interframe compression is proposed.
+
+\subsection{Inspiration and Discussion}
+
+Interframe compression is a fundamental idea of many video compression algorithms such as MPEG-2 \cite{le1991mpeg} and H.264 \cite{wiegand2003h264}. Since consecutive frames in a video are normally very similar, encoding them individually results in low entropy, which is a waste of bandwidth. With interframe compression, video codecs encode complete frames (Intra-frames, or I-frames) only every once a while. Between these complete frames, only changing parts are encoded (Predictive-frames or P-frames, and Bidirectional-frames, or B-frame).
+
+These frames are packed into Group of Pictures (GOP\nomenclature{GOP}{Gropu of Pictures}) structures. A typical GOP structure is \texttt{IBBPBBP$\ldots$PBBI}. Since B-frames and P-frames are much smaller than I-frames, the complete video stream uses much less bandwidth.
+
+Messages in vehicular network can benefit from interframe compression as well. An important attribute of video streams that allows interframe compression is that consecutive frames are very similar, with only slight changes in parts. This is true for messages in vehicular environments as well. Take platooning message in Appendix~\ref{apx:vendor_structure} as an example. Within a small portion of the road, e.g. 60 meters, or roughtly 2 seconds at 110 km/h, many dynamic attributes of the vehicle, such as \texttt{Steering}, \texttt{YawRate}, \texttt{GearRatio}, \texttt{BrakePedalPosPercent}, \texttt{SpeedComputed}, and \texttt{Heading}, are largely the same, as long as the vehicle is not doing a significant maneuver. Even when they change, they change gradually, which results in only a few flipped bits in binary form.
+
+However, video compression algorithms cannot be directly applied to vehicular networks.
+
+First, platooning messages, among many types of messages in vehicular environment, are temporal messages that are only meaningful within a period of time. As much as high delivery ratio matters, the message is of little use to the actual real-time applications if it is not delivered in time. As a result, the communication system should not attempt to delivery an old message by sacrificing latency of newer messages. In other words, retransmission should not happen in case of message losses. As a result, data stream from one vehicle to another should not be considered lossless, and key frames can be missing. Hence, a long dependency chain like \texttt{IBBPBBP$\ldots$PBBI} is not suitable for vehicular network.
+
+Second, messages like platooning require lossless compression. While recent video compression techniques have improved prediction techniques and result in high quality video stream, they are not lossless and data through compression may still defer from original data.
+
+Hence, to use interframe compression, a new algorithm needs to be designed to suit the needs of vehicular networks.
+
+\subsection{Design}
+
+To make the transmission mechanism suitable for general purposes in vehicular environment rather than platooning specific, it is designed as a layer between Message Sublayer and WSMP layer in the DSRC stack as shown in Figure~\ref{fig:dsrc}. We call it Interframe Compression Transmission Layer (ICTL).
+
+In traditional DSRC, applications constructs a SAE J2735 message, and directly encapsulates it in a WSM and send through 802.11p using WSMP. With ICTL, the message is either sent as it is, or converted to a smaller byte stream containing changes from a previous complete message before being sent out. ICTL takes care of compression and decompression, and applications see the same message identical to the original.
+
+To support this, two types of frames are introduced:
+
+\begin{itemize}
+  \item Key Frame (KF). A KF is like an I-frame in video compression. It contains complete message being sent. It does not require any extra information to decode a KF.
+  \item Differential Frame (DF). A DF only carries difference from a previously sent KF. Decoding original message from a DF requires the KF that it refers to as well.
+\end{itemize}
+
+\subsubsection{Header and Layout}
+
+To separate DF from KF, and to identify each message, ICTL uses a 4-byte header. Table~\ref{tab:ictl_layout} shows the layout of an ICTL packet. Zooming out to a bigger picture, a typical message with all headers has a layout shown in Table~\ref{tab:ictl_layout_wsm}.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+      \hline
+      Reserved & Frame Type & Compression Options & Frame ID & Payload \\\hline
+      4 bits   &  4 bits    & 8 bits              & 16 bits  & variable length \\\hline
+    \end{tabular}
+    \caption{\label{tab:ictl_layout}ICTL Packet Layout}
+  \end{center}
+\end{table}
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|}
+      \hline
+      MAC Header (802.11) & WSM Header & ICTL Header & Payload \\\hline
+      28 bytes            & 5-20 bytes & 4 bytes     &  variable length \\\hline
+    \end{tabular}
+    \caption{\label{tab:ictl_layout_wsm}ICTL Packet Layout With WSM Header}
+  \end{center}
+\end{table}
+
+The Reserved field is in case of a newer version of ICTL. For now it should always be set to \texttt{0b0000}. Frame Type indicates whether the packet contains a KF (\texttt{0b0001}) or a DF (\texttt{0b0010}). Compression options carries information about compression algorithms applied to the payload (see Section~\ref{sec:ictl_process}). Frame ID is an increasing unsigned integer that wraps at boundaries. It is used to identify frames sent from the same source. For a KF, it is the ID of the actual message. For a DF, it is the ID of the KF that it refers to. Payload is the actual complete message (KF) or differential message (DF). Since WSM header already has a field for payload length, and ICTL header has a fixed width of 4 bytes, the length of ICTL payload can be easily inferred, thus does not require an extra length field.
+
+\subsubsection{Differential Encoding}
+\label{sec:ictl_diff}
+
+Compressing vehicular messages needs to be lossless. As a result, video compression techniques such as prediction cannot be used. Instead, a simpler approach using Exclusive Or (XOR\nomenclature{XOR}{Exclusive Or}) is proposed to encode differential messages in a DF.
+
+Given a previously transmitted KF, whose payload is
+\begin{equation}
+  p^0={b^0_0,b^0_1,b^0_2,b^0_3,b^0_4,b^0_5,\ldots,b^0_{n-2},b^0_{n-1}}
+\end{equation}
+, where $b^0_i$ represents one bit (zero based index) of the payload $p^0$, and a new message
+\begin{equation}
+  p^1={b^1_0,b^1_1,b^1_2,b^1_3,b^1_4,b^1_5,\ldots,b^1_{n-2},b^1_{n-1}}
+\end{equation}
+, where $b^1_i$ represents one bit (zero based index) of the payload $p^1$, then the payload of DF, or in other words, the differential message $d^{0,1}$ between $p^0$ and $p^1$, can be produced as
+\begin{equation}
+  d^{0,1}={b^0_0\oplus b^1_0,b^0_1\oplus b^1_1,b^0_2\oplus b^1_2,b^0_3\oplus b^1_3,b^0_4\oplus b^1_4,b^0_5\oplus b^1_5,\ldots,b^0_{n-2}\oplus b^1_{n-2},b^0_{n-1}\oplus b^1_{n-1}}
+\end{equation}
+, where $\oplus $ is XOR operator\footnote{When implementing in a programming language, this can be done by using bitwise XOR operator (normally written as $\hat{\ }$), and computed 8 bits at a time.}.
+
+Since the messages that are sent within a short time window have very similar content, the majority bits in the differential message should be zero. Such message has low entropy, and can be efficiently compressed using a general purpose compression algorithm.
+
+\subsubsection{Encoding and Decoding Process}
+\label{sec:ictl_process}
+
+ICTL is per application rather than per link. Since WSMP already handles multiplexing through PSID, ICTL uses PSID to separate different types of data. When ICTL receives a request to transmit message from upper layer for a given PSID, it first determines whether the message should be transmitted using KF or DF. This depends on a preset scheme that describes how many DFs can be sent between two adjacent KFs. For KF, the message is compressed, and prepended with an ICTL header. The header indicates that it is a KF, and provides the increasing unsigned integer to identify the message. For DF, the differential message is first calculated using process described in Section~\ref{sec:ictl_diff}, then compressed and prepended with ICTL header. The header indicates that it is a DF, and refers to ID of the KF that the DF is produced from. Normally, it is the most recently sent KF, but can be older ones as well depending the networking condition when the KF was sent. If the the network condition was bad when the most recently sent KF was transmitted, it might not have been successfully received by many vehicles nearby. In this case, ICTL would choose a previously sent KF to base on.
+
+Following is a pseudo-code listing for encoding KFs and DFs using Go-like syntax:
+
+\begin{singlespace}
+  \lstinputlisting{ictlEncoding.go.lst}
+\end{singlespace}
+
+Decoding is basically the reverse operation of encoding. Since the sender may choose to send a differential message based on an older message, a list of recently received KF needs to be maintained. Following is a pseudo-code listing for decoding KFs and DFs using Go-like syntax:
+
+\begin{singlespace}
+  \lstinputlisting{ictlDecoding.go.lst}
+\end{singlespace}
+
+The implementations of \texttt{shouldDF()} and \texttt{chooseKFID} are particularly tricky, and requires to be guided by tests in order to achieve good performance.
+
+
+\chapter{Conclusion}
+
+\chapter{Results and Discussion}
+
+\section{Interframe Compression Transmission Layer}
+\label{sec:ictl_simulation}
+In ICTL, bandwidth saving is mainly from compressing differential messages into DFs, due to the low entropy of differential messages. To find out how much saving using DFs can provide, a simple simulation is developed.
+
+The vendor message structure shown in Appendix\ref{apx:bsm_vendor} is used as test data structure. For preliminary study, we did not include the required portion of BSM since it is a very compact structure that is complex to encode and decode. Furthermore, the vendor portion uses developer friendly data types and is less compact, which would likely produce largest saving.
+
+The simulation simulates a vehicle running on highway without any maneuver for 100 seconds. It updates the vehicle's longitude, latitude, sequence number, and timestamp along the simulated time. A message is generated every 100 milliseconds. The vehicle is simulated to run at 31 meters/second, or roughly 11 kilometers/hour, towards northeast direction. Messages and differential messages are compressed using 4 different compression algorithms, and compared. The four compression algorithms being used are: zlib\cite{rfc1950}, flate\cite{rfc1951}, and gzip\cite{rfc1952}, lzw\cite{welch1984lzw}. The simulation is run with different cycle length, which is defined as number of frames in one cycle of $KF-DF-DF-\ldots$ sequence. For example, for cycle length 2, the message stream would look like: $KF-DF-KF-DF-\ldots$
+
+The results show that, for a single message, the compressed data can be as small as 58\% of original size for KF, and 26\% or original size for DF.
+
+To see how benefits from single KFs and DFs stack up in aggregated results, Figure~\ref{fig:ictl_preliminary} shows a box-plot of bandwidth usage from same node from the simulation results.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.9\textwidth]{figures/ictlPreliminary.pdf}
+    \caption{\label{fig:ictl_preliminary}Preliminary ICTL Bandwidth Saving Results}
+  \end{center}
+\end{figure}
+
+As shown in figure, bandwidth usage decreases exponentially as the cycle length increases, and converges towards about half of that from cycle length 1 strategy, i.e. using KFs all the time, or about one third of that from original, i.e., raw message stream without compression. For now it seems flate has be best compression rate.
+
+It seems that even using KFs all the time, the compression result is still really good. This is because the simulation keeps vehicle on a straight line without maneuver. Thus, a lot of fields such as \texttt{YawRate} and \texttt{Steering} are zero, which results in low entropy. If the vehicle is going through a curve, these values will be non-zero, but still remain mostly the same. In this case, applying general purpose compression algorithm on raw data would not generate as much benefit, and ICTL would be more useful.
+
+
+
+\chapter{Acknowledgement}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{bib}
+
+% \appendix
+% \chapter*{Appendices\addcontentsline{toc}{chapter}{Appendices}}
+
+\end{document}
+

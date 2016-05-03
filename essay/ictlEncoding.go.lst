@@ -1,0 +1,36 @@
+var KFs map[uint16][]byte
+var currentID uint16
+
+/*
+* Omitted functions' signatures:
+* func shouldDF() bool
+* func chooseKFID() uint16
+* func XOR(src1 []byte, src2 []byte) []byte {}
+* func compress(original []byte) (compressionAlgorithm string, compressed []byte) {}
+* func prependHeader(isDF bool, compressionAlgorithm string,
+                                  id uint16, message []byte) []byte {}
+*/
+
+func encode(message []byte) []byte {
+  if shouldDF() {
+    return encodeDF(message)
+  } else {
+    return encodeKF(message)
+  }
+}
+
+func encodeKF(message []byte) []byte {
+  algo, data := compress(message)
+  currentID++
+  map[currentID] = make([]byte, len(message)
+  copy(map[currentID], message)
+  return prependHeader(false, algo, currentID, data)
+}
+
+func encodeDF(message []byte) []byte {
+  baseID := chooseKFID()
+  diff := XOR(baseID, message)
+  algo, data := compress(diff)
+  currentID++
+  return prependHeader(true, algo, baseID, data)
+}
