@@ -1,0 +1,26 @@
+\nomenclatureentry{aDSRC@[{DSRC}]\begingroup Dedicated Short Range Communication\nomeqref {1.0}|nompageref}{1}
+\nomenclatureentry{aCAN@[{CAN}]\begingroup Control Area Network\nomeqref {1.0}|nompageref}{1}
+\nomenclatureentry{aICTL@[{ICTL}]\begingroup Interframe Compression Transmission Layer\nomeqref {1.0}|nompageref}{2}
+\nomenclatureentry{aWAVE@[{WAVE}]\begingroup Wireless Access in Vehicular Environment\nomeqref {2.0}|nompageref}{3}
+\nomenclatureentry{aWSMP@[{WSMP}]\begingroup Wave Short Message Protocol\nomeqref {2.0}|nompageref}{3}
+\nomenclatureentry{aFCC@[{FCC}]\begingroup Federal Communications Commission\nomeqref {2.0}|nompageref}{4}
+\nomenclatureentry{aOFDM@[{OFDM}]\begingroup Orthogonal Frequency Division Multiplexing\nomeqref {2.0}|nompageref}{4}
+\nomenclatureentry{aCSMA/CA@[{CSMA/CA}]\begingroup Carrier Sense Multiple Access/Collision Avoidance\nomeqref {2.0}|nompageref}{4}
+\nomenclatureentry{aBSS@[{BSS}]\begingroup Basic Servie Set\nomeqref {2.0}|nompageref}{4}
+\nomenclatureentry{aOCB@[{OCB}]\begingroup Outside Context of BSS\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aBSSID@[{BSSID}]\begingroup Basic Service Set Identification\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aMAC@[{MAC}]\begingroup Media Access Control\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aCCH@[{CCH}]\begingroup Control Channel\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aSCH@[{SCH}]\begingroup Service Channel\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aWSM@[{WSM}]\begingroup Wave Short Message\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aPSID@[{PSID}]\begingroup Provider Service Identifier\nomeqref {2.0}|nompageref}{5}
+\nomenclatureentry{aCACC@[{CACC}]\begingroup Cooperative Adaptive Cruise Control\nomeqref {2.0}|nompageref}{6}
+\nomenclatureentry{aACC@[{ACC}]\begingroup Adaptive Cruise Control\nomeqref {2.0}|nompageref}{6}
+\nomenclatureentry{aHAL@[{HAL}]\begingroup Hardware Abstract Layer\nomeqref {3.0}|nompageref}{12}
+\nomenclatureentry{aOSLV@[{OSLV}]\begingroup Operating System Level Virtualization\nomeqref {3.0}|nompageref}{13}
+\nomenclatureentry{aDIFS@[{DIFS}]\begingroup Distributed coordination function Inter-Frame Space\nomeqref {3.0}|nompageref}{17}
+\nomenclatureentry{aBO@[{BO}]\begingroup Back-Off time counter\nomeqref {3.0}|nompageref}{17}
+\nomenclatureentry{aCW@[{CW}]\begingroup Contention Window\nomeqref {3.0}|nompageref}{17}
+\nomenclatureentry{aSIFS@[{SIFS}]\begingroup Short Inter-Frame Space\nomeqref {3.0}|nompageref}{17}
+\nomenclatureentry{aACK@[{ACK}]\begingroup Acknowledge Frame\nomeqref {3.0}|nompageref}{17}
+\nomenclatureentry{aRPC@[{RPC}]\begingroup Remote Procedure Call\nomeqref {3.4}|nompageref}{20}

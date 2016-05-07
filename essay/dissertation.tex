@@ -50,6 +50,11 @@
 
 \TitlePage
 
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}%
+
+TODO
+
 \begin{abstract} 
   TODO
 \end{abstract}
@@ -150,7 +155,7 @@ Vehicle platooning is one of safety applications that DSRC enables. In vehicle p
   \end{center}
 \end{figure}
 
-Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational}, and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in trucking industry, the single largest operating cost is disel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
+Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational,fhwa2015report}, and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in trucking industry, the single largest operating cost is disel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
 
 \section{Real-world Performance Attributes of DSRC in Platooning Scenarios}
 
@@ -202,7 +207,7 @@ An emulated Dynamic Switch was proposed in \cite{lin2004mobile}. It is a reconfi
 
 The U.S. Naval Research Lab has developed Extendable Mobile Ad-hoc Network Emulator (EMANE) \cite{EMANE}. It is the most similar to the emulator proposed in this study, and achieve roughly the same goal. Comparing the two, the emulator proposed in this study has simpler design and uses more straight-forward configuration format than EMANE, and is written in a safer language (Go vs C++) that supports static linking, which enables easier deployment in clusters. In addition, EMANE is a general emulation framework, but does not have specific support towards vehicular network like the proposed emulator.
 
-\section{Emulator Design}
+\section{Design of Squirrel Emulator}
 \subsection{Overview}
 
 In this study, an 802.11 emulation framework called squirrel is developed, with a goal of trying to use as much real-world software components as possible. Conceptually, as shown in Figure~\ref{fig:squirrel_concept}, squirrel replaces the wireless hardware, device driver's Hardware Abstract Layer (HAL\nomenclature{HAL}{Hardware Abstract Layer}), and 802.11 kernel module. Layers above MAC layer are not replaced by squirrel, and run real software that is identical to what can be deployed in real-world. Figure~\ref{fig:squirrel_dsrc} shows how squirrel emulator fits in the DSRC stack.
@@ -310,12 +315,14 @@ Putting it together, when a node transmits a unicast data frame, squirrel's CSMA
 
 
 \subsection{RPC Updated Mobility Manager}
+\label{sec:rpc_mobility_manager}
 
 There are two approaches to design a mobility manager. The most straight way is to have a mobility model within the mobility manager, which emits new positions for emulated nodes based on the mobility model. This approach is useful for studying a specific mobility pattern, such as random waypoint, that can be easily well modeled with equations and software programs. Another approach is to follow an external trace which consists of a time series position data for each node, and update positions for emulated nodes accordingly. This approach provides a way to utilize external mobility simulators, or trace files from real-world experiments.
 
 In this study, we acquired some real-world test traces. To produce most realistic results, the second approach is used. A Remote Procedure Call (RPC\nomenclature{RPC}{Remote Procedure Call}) updated mobility manager is designed. It includes a server that exposes several RPC services that allows a different process to update positions for emulated nodes. As opposed to directly reading from a trace file, the RPC updated mobility manager delegates the work or interpreting trace files to a different process. This provides flexibility on trace file formats. In addition, in many cases, trace files include many types of data including GPS positions, DSRC send and receive history, etc.. The RPC updated mobility manager allows a dedicated process to ``playback" all relevant events. TODO: mention \texttt{truck-playback}.
 
 \section{Implementation}
+\label{sec:squirrel_implementation}
 
 The squirrel emulator and its components are implemented in Go programming language \cite{golang}. The language is chosen because of its good balance between safety, development efficiency, and performance. Designed as a system language, Go has well designed support for system software, such as concurrency, networking, system call interface, and cross-compile tools. These feature benefit the development of squirrel emulator, resulting in stability and high performance \footnote{An earlier version of the emulator was developed using C++ with Boost.Asio, which achieved only about half throughput of that in the Go version.}.
 
@@ -336,11 +343,11 @@ A simple networking testing tool, \texttt{iperf}, is used as testing target. UDP
 \begin{figure}[h]
   \begin{center}
     \begin{subfigure}[h]{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/squirrel/android.pdf}
+      \includegraphics[width=\textwidth]{figures/results/effectiveness_android.pdf}
       \caption{\label{fig:squirrel_preliminary_android}Real Android UDP Throughput}
     \end{subfigure}
     \begin{subfigure}[h]{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/squirrel/squirrel.pdf}
+      \includegraphics[width=\textwidth]{figures/results//effectiveness_squirrel.pdf}
       \caption{\label{fig:squirrel_preliminary_squirrel}Squirrel Emulator UDP Throughput}
     \end{subfigure}
     \caption{\label{fig:squirrel_preliminary}Preliminary Squirrel Testing Results: UDP Throughput in Android v.s. Squirrel Emulator}
@@ -353,7 +360,20 @@ The general trends match very well between Android and squirrel configuration, a
 
 \subsection{Throughput Test}
 
-\chapter{Inter-frame Compression Transport Layer}
+Squirrel is a real-time emulator. Unlike in discrete event simulation where the model can take as long as it needs to calculate results, in real-time emulation, models need to make decisions as fast as events happen in real-world. In other words, raw throughput of squirrel effectively bounds the scalability of emulation.
+
+To find out this boundary, \texttt{iperf} is used to measure the throughput on squirrel with PassThrough wireless model, which delivers all frames. The test was conducted on a single workstation with 6-core processor. All squirrel worker nodes, as well as the squirrel master run on the same workstation.
+
+With a single pair of sender/receiver, UDP throughput achieves around 480 Mbps. This is mainly bounded by processor. As the number pairs increases to 2, more processor cores are able to work in parallel. As a result both pair get the same throughput, doubling the total throughput. However, when the number of pairs keep increasing, more parallel routines than the number of cores are requested, in which case the total throughput cannot increase linearly as number of pairs increases. Figure~\ref{fig:passthrough} is a stacked area plot showing UDP throughput with different pairs simutaneously transmitting. The total throughput tops at around 1200 Mbps, with each transmitting pair gets about 200 Mbps throughput.
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{figures/squirrel/passthrough.pdf}
+  \caption{\label{fig:passthrough}Stacked Throughput using PassThrough Wireless Model}
+\end{figure}
+
+With more workstations handling squirrel worker nodes, and more number of cores on the workstations, the throughput can further increase. In other words, the throughput capability of squirrel is mainly bounded by hardware resources. For the purposes of this study, a single workstation is able to provide enough throughput for the emulation.
+
+\chapter{Inter-frame Compression Transmission Layer}
 
 \section{Problem Statement}
 \label{sec:problem_congestion}
@@ -386,13 +406,13 @@ With variables defined as in Table~\ref{tab:bandwidth_equation_variable}, the ca
   \begin{center}
     \begin{tabular}{r l}
       \hline
-      Varible & Definition \\ \hline
-      B & Demanded bandwidth usage within interference range \\
-      r & Interference range \\
-      l & Total number of lanes in both directions \\
-      d & Average following distance \\
-      s & Platooning message size \\
-      f & Frequency at which platooning messages are sent \\ \hline
+      Variable & Definition \\ \hline
+      $B$ & Demanded bandwidth usage within interference range \\
+      $r$ & Interference range \\
+      $l$ & Total number of lanes in both directions \\
+      $d$ & Average following distance \\
+      $s$ & Platooning message size \\
+      $f$ & Frequency at which platooning messages are sent \\ \hline
     \end{tabular}
     \caption{\label{tab:bandwidth_equation_variable}Variable definition for Equation~\ref{eq:bandwidth}}
   \end{center}
@@ -447,9 +467,9 @@ Second, messages like platooning require lossless compression. While recent vide
 
 Hence, to use interframe compression, a new algorithm needs to be designed to suit the needs of vehicular networks.
 
-\section{Design}
+\section{Basic Design}
 
-To make the transmission mechanism suitable for general purposes in vehicular environment rather than platooning specific, it is designed as a layer between Message Sublayer and WSMP layer in the DSRC stack as shown in Figure~\ref{fig:dsrc}. We call it Interframe Compression Transmission Layer (ICTL).
+To make the transmission mechanism suitable for general purposes in vehicular environment rather than platooning specific, it is designed as a layer between Message Sublayer and WSMP layer in the DSRC stack as shown in Figure~\ref{fig:dsrc}. We call it Interframe Compression Transmission Layer (ICTL). In context of the DSRC protocol suite in Figure~\ref{fig:dsrc}, ICTL can be placed either between Safety Applications Sublayer and the Message Sublayer, or between Message Sublayer and WSMP.
 
 In traditional DSRC, applications constructs a SAE J2735 message, and directly encapsulates it in a WSM and send through 802.11p using WSMP. With ICTL, the message is either sent as it is, or converted to a smaller byte stream containing changes from a previous complete message before being sent out. ICTL takes care of compression and decompression, and applications see the same message identical to the original.
 
@@ -511,7 +531,7 @@ Since the messages that are sent within a short time window have very similar co
 \subsection{Encoding and Decoding Process}
 \label{sec:ictl_process}
 
-ICTL is per application rather than per link. Since WSMP already handles multiplexing through PSID, ICTL does not further multiplex messages into multiple streams. In other words, one ICTL encoder/decoder should be allocated for each PSID. When ICTL receives a request to transmit message from upper layer for a given PSID, it first determines whether the message should be transmitted using KF or DF. This depends on a preset scheme that describes how many DFs can be sent between two adjacent KFs. For KF, the message is compressed, and prepended with an ICTL header. The header indicates that it is a KF, and provides the increasing unsigned integer to identify the message. For DF, the differential message is first calculated using process described in Section~\ref{sec:ictl_diff}, then compressed and prepended with ICTL header. The header indicates that it is a DF, and refers to ID of the KF that the DF is produced from. Normally, it is the most recently sent KF, but can be older ones as well depending the networking condition when the KF was sent. If the the network condition was bad when the most recently sent KF was transmitted, it might not have been successfully received by many vehicles nearby. In this case, ICTL would choose a previously sent KF to base on.
+ICTL is per application rather than per link. Since WSMP already handles multiplexing through PSID, ICTL does not further multiplex messages into multiple streams. In other words, one ICTL encoder/decoder should be allocated for each PSID. When ICTL receives a request to transmit message from upper layer for a given PSID, it first determines whether the message should be transmitted using KF or DF. This depends on either a pre-defined parameter that describes how many DFs can be sent between two adjacent KFs, or an internal model to make the decision. For KF, the message is compressed, and prepended with an ICTL header. The header indicates that it is a KF, and provides the increasing unsigned integer to identify the message. For DF, the differential message is first calculated using process described in Section~\ref{sec:ictl_diff}, then compressed and prepended with ICTL header. The header indicates that it is a DF, and refers to ID of the KF that the DF is produced from. Normally, it is the most recently sent KF, but can be older ones as well depending the networking condition when the KF was sent. If the network condition was bad when the most recently sent KF was transmitted, it might not have been successfully received by many vehicles nearby. In this case, ICTL can choose a previously sent KF to base on. In this study, however, for simplicity, ICTL always choose the most recently sent KF as reference frame.
 
 Following is a pseudo-code listing for encoding KFs and DFs using Go-like syntax:
 
@@ -525,45 +545,152 @@ Decoding is basically the reverse operation of encoding. Since the sender may ch
   \lstinputlisting{ictlDecoding.go.lst}
 \end{singlespace}
 
-The implementations of \texttt{shouldDF()} and \texttt{chooseKFID} are particularly tricky, and requires to be guided by tests in order to achieve good performance. The following sections of this chapter explains this process, in which an adaptive ICTL algorithm is designed.
+The implementations of \texttt{shouldDF()} is particularly tricky, and requires to be guided by tests in order to achieve good performance. The following sections of this chapter explains this process, in which an adaptive ICTL algorithm is designed.
 
-\section{Performance Study and Discussion}
+For analysis and experimental purposes, the concept of ICTL Cycle, and Cycle Length (CL\nomenclature{CL}{Cycle Length}) is introduced here:
+\begin{itemize}
+  \item ICTL Cycle is defined as a sequence of ICTL frames, starting with a KF, followed by a number of DFs, given that the last DF, i.e., the end of cycle, is either the last frame of transmission, or followed immediately by a KF, which marks the start of next cycle. In the case of this study where ICTL always pick the most recently transmitted KF as reference frame for DFs, an ICTL Cycle can also defined as a sequence messages including exactly one KF, and all DFs that use this KF as reference frame;
+  \item CL is defined as the number of messages included in an ICTL Cycle. For example, for an ICTL strategy that always sends 3 DFs after each KF before sending a new KF, the CL is always 4. CL can be a predefined fixed value, in which case it is a configurable parameter, or dynamically changing according to an internal model in ICTL implementation, in which case CL is merely an observed value driven by ICTL implementation.
+\end{itemize}
 
+\section{Implementation and Experimental Setup}
+
+\subsection{Implementation}
+
+For the same reasons explained in Section~\ref{sec:squirrel_implementation}, Go programming is chosen to implement ICTL. Similarly, it uses a buffer pool for memory management. ICTL is implemented as a library package that encapsulates details of encoding and decoding behind a simple interface \texttt{ictl.Endpoint}, which represents an ICTL endpoint for encodings and decodings. An object of \texttt{ictl.Endpoint} can be created using a configuration object that specifies the behaviors of ICTL algorithm, and the endpoint has methods for encoding and decoding messages. Each of such methods accepts a \texttt{context} parameter, which is used to differentiate different stream of data. In case of DSRC, a combination of MAC address and PSID is a good choice of \texttt{context}. The endpoint allocates one encoder/decoder for each context, and maintains the separation between different data streams.
+
+\subsection{Trace File Playback}
+
+The squirrel emulator was designed to facilitate running real-world code. Everything above MAC layer assumes a real wireless device, and process real network frames. This idea here is to develop research projects that can be not only reproducible, but also more directly beneficial to real-world applications. With the same spirit, we acquired real-world platooning data traces, and use them to study the ICTL algorithm, and make performance improvements. To utilize such trace files, a software component is written, called \texttt{truck-playback}, to replay events from one vehicle.
+
+The trace files were logged by platooning applications running on two heavy vehicles, while the trucks were being tested with platooning on a closed test track. The trace files include many events, such GPS location, DSRC messages transmission and reception, various events from vehicle's CAN bus, radar measurements, etc.. For the purposes of study ICTL, two events are relevant:
+
+\begin{itemize}
+  \item GPS location events are needed to update emulated locations of the truck in squirrel;
+  \item DSRC transmission events indicates when to send a DSRC message, and what particular data should each DSRC message carry.
+\end{itemize}
+
+\texttt{truck-playback} reads the two types of events from a logged trace file, and replays these events in emulation. The GPS location events are converted to RPC requests, and sent through the RPC Updated Mobility Manager's service (see Section~\ref{sec:rpc_mobility_manager}), to update current emulated position of the node. The DSRC events drives the \texttt{truck-play} to send WSMs over DSRC at pre-defined time points, using traditional method, or encoded with ICTL. The content of a WSM is determined by the event content, which includes values of each data field. Sending exactly the same information as trace files is important, because the content, and how fast the content changes, affects how well ICTL compresses the messages.
+
+Each event from the trace file is tagged with a timestamp. \texttt{truck-playback} synchronizes the timeline so that a time point from wall-clock during emulation is aligned with a time point from trace file's time while tests were conducted in real-world. In other words, a fixed offset is set between the playback's timeline and the trace file's timeline. When \texttt{truck-playback} replays an event, it first calculates a deadline based on the timeline offset. In most cases, the deadline is after current wall-clock time. A difference is calculated between the two, and \texttt{truck-playback} waits for such time duration by calling \texttt{sleep()} before actually replaying the event. This ensures that events happen at exactly same relative times. For example, DSRC messages are sent at same frequencies as the trace file dictates. When many nodes are emulated on the same computer, occasionally, the deadline may have already passed at time it's calculated. In this case, this particularly event is sent immediately (without calling \texttt{sleep()}, but not able to meet the deadline when replayed. If too many events cannot meet deadline, the results would not be authentic. As a result, \texttt{truck-playback} logs the such incidents to be examined afterwards.
+
+The \texttt{truck-playback} uses a WSMP implementation written in Go, which uses system call interfaces to pass Logical Link Control (LLC\nomenclature{LLC}{Logical Link Control}) layer frames into the kernel. In squirrel emulation, the frames are then passed to squirrel worker through \texttt{tap0} interface, and go through the data flow as demonstrated in Figure~\ref{fig:squirrel_arch}. Conceptually, \texttt{truck-playback} works as a DSRC application as shown in Figure~\ref{fig:playback_arch}.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.6\textwidth]{figures/playback_arch.pdf}
+    \caption{\label{playback_arch}\texttt{truck-playback} as DSRC Application}
+  \end{center}
+\end{figure}
 
 \subsection{Deployment}
 
 The squirrel emulator is deployed on a CoreOS \cite{coreos} cluster. The cluster consists of one physical workstation, and one virtual machine. For this study, only the physical workstation is used. The workstation has an Intel(R) Xeon(R) CPU W3680 with 6 cores.
 
-\chapter{Conclusion}
+TODO
 
-\chapter{Results and Discussion}
+\section{Performance Studies}
 
-\section{Interframe Compression Transmission Layer}
-\label{sec:ictl_simulation}
-In ICTL, bandwidth saving is mainly from compressing differential messages into DFs, due to the low entropy of differential messages. To find out how much saving using DFs can provide, a simple simulation is developed.
+TODO
 
-The vendor message structure shown in Appendix\ref{apx:bsm_vendor} is used as test data structure. For preliminary study, we did not include the required portion of BSM since it is a very compact structure that is complex to encode and decode. Furthermore, the vendor portion uses developer friendly data types and is less compact, which would likely produce largest saving.
+\subsection{Cycle Length and Application Delivery Ratio}
+\label{sec:cl_adr}
 
-The simulation simulates a vehicle running on highway without any maneuver for 100 seconds. It updates the vehicle's longitude, latitude, sequence number, and timestamp along the simulated time. A message is generated every 100 milliseconds. The vehicle is simulated to run at 31 meters/second, or roughly 11 kilometers/hour, towards northeast direction. Messages and differential messages are compressed using 4 different compression algorithms, and compared. The four compression algorithms being used are: zlib\cite{rfc1950}, flate\cite{rfc1951}, and gzip\cite{rfc1952}, lzw\cite{welch1984lzw}. The simulation is run with different cycle length, which is defined as number of frames in one cycle of $KF-DF-DF-\ldots$ sequence. For example, for cycle length 2, the message stream would look like: $KF-DF-KF-DF-\ldots$
+Delivery ratio is one of the ultimate metrics that researchers are constantly trying to optimize for. In this case, two kinds of delivery ratio are involved:
 
-The results show that, for a single message, the compressed data can be as small as 58\% of original size for KF, and 26\% or original size for DF.
+\begin{itemize}
+  \item Application Delivery Ratio (ADR\nomenclature{ADR}{Application Delivery Ratio}) is the delivery ratio observed in application layer. Lost frames or errors in any of the lower layers can affect this metric. This is the metric that we are trying to optimize for.
+  \item Network Delivery Ratio (NDR\nomenclature{NDR}{Network Delivery Ratio} is the delivery ratio observed in the layer immediately below ICTL. Events such MAC layer frame loss directly affect this metric.
+\end{itemize}
 
-To see how benefits from single KFs and DFs stack up in aggregated results, Figure~\ref{fig:ictl_preliminary} shows a box-plot of bandwidth usage from same node from the simulation results.
+In ICTL, each DF carries differential information from a previously transmitted KF. In other words, decoding a DF depends on the success of KF transmission. As a result, losing a KF can be critical, since it implies the loss of all frames within the cycle starting with the lost KF. This makes the relationship between ADR, CL and NDR more complicated. On one hand, longer CL means more application frame loss whenever a key frame is lost; on the other hand, longer CL means that there are less KFs in the same transmission, thus losing KFs is less likely to happen given the same NDR.
+
+Some mathematical analysis are done to further study this problem. Table~\ref{tab:cl_var} shows variables used in the analysis, along with their meanings.
+
+\begin{table}
+  \begin{center}
+    \begin{tabular}{r l}
+      \hline
+      Variable & Definition \\ \hline
+      $N$      & The number of messages needed to be transmitted \\
+      $n_a$    & The number messages delivered at application layer during entire transmission \\
+      $n_c$ & The number of messages delivered at application layer within one ICTL Cycle \\ 
+      $m$      & CL \\
+      $p_n$    & The probability that a frame is lost below ICTL, e.g., MAC layer \\
+      $NDR$    & NDR \\
+      $ADR$    & ADR \\
+      \hline
+    \end{tabular}
+    \caption{\label{tab:cl_var}Variable Definition for Analysis in Section~\ref{sec:cl_adr}}
+  \end{center}
+\end{table}
+
+Assume that $N$ is sufficiently large, then $p_n$ is equal to $NDR$, and $ADR$ can be calculated as $\frac{n_a}{N}$. Starting from each ICTL Cycle, the expected number of messages delivered at application layer within on ICTL Cycle, $E[n_c]$, can be calculated by divided into two cases:
+\begin{enumerate}
+  \item When the KF is lost, the entire ICTL Cycle is lost, i.e., 0 is delivered. The probability of this happening is $1-p_n$;
+  \item When the KF is delivered, each message in the rest of the ICTL Cycle is delivered at probability of $p_n$, so the expected number of delivery of the cycle in this case is $1+(m-1)*p_n$ The probability of this happening is $p_n$.
+\end{enumerate}
+
+So $E[n_c]$ can be calculated using Equation~\ref{eq:expected_nc}:
+
+\begin{equation}
+  \begin{split}
+    E[n_c] & = (1-p_n) * 0 + p_n * [1 + (m - 1) * p_n] \\
+           & = p_n^2 * m - p_n^2 + p_n
+  \end{split}
+  \label{eq:expected_nc}
+\end{equation}
+
+With $N$ frames in total, and CL being fixed at $m$, there are $\frac{N}{m}$ ICTL cycles in total. So ADR can be calculated using Equation~\ref{eq:adr0}:
+
+\begin{equation}
+  ADR = \frac{E[n_a]}{N} = \frac{\frac{N}{m}E[n_c]}{N} = \frac{E[n_c]}{m}
+  \label{eq:adr0}
+\end{equation}
+
+Combining Equation~\ref{eq:expected_nc} and \ref{eq:adr0},
+
+\begin{equation}
+  \begin{split}
+    ADR = \frac{E[n_c]}{m} & = \frac{p_n^2*m-p_n^2+p_n}{m} \\
+                           & = p_n^2 + \frac{p_n-p_n^2}{m}
+  \end{split}
+  \label{eq:adr}
+\end{equation}
 
 \begin{figure}[h]
   \begin{center}
-    \includegraphics[width=.9\textwidth]{figures/ictlPreliminary.pdf}
-    \caption{\label{fig:ictl_preliminary}Preliminary ICTL Bandwidth Saving Results}
+    \includegraphics[width=\textwidth]{figures/adr.pdf}
+    \caption{\label{fig:adr}ADR as function of NDR for different CL}
   \end{center}
 \end{figure}
 
-As shown in figure, bandwidth usage decreases exponentially as the cycle length increases, and converges towards about half of that from cycle length 1 strategy, i.e. using KFs all the time, or about one third of that from original, i.e., raw message stream without compression. For now it seems flate has be best compression rate.
+Equation~\ref{eq:adr} shows the relationship between ADR, NDR, and CL. This is illustrated in Figure~\ref{fig:adr}, which shows ADR as function of NDR for different CL values. Although higher CL values brings down lower ADR overall, ADR is not as sensitive to CL changes as to NDR changes. In other words, ADR is more affected by NDR.
 
-It seems that even using KFs all the time, the compression result is still really good. This is because the simulation keeps vehicle on a straight line without maneuver. Thus, a lot of fields such as \texttt{YawRate} and \texttt{Steering} are zero, which results in low entropy. If the vehicle is going through a curve, these values will be non-zero, but still remain mostly the same. In this case, applying general purpose compression algorithm on raw data would not generate as much benefit, and ICTL would be more useful.
+Bandwidth usage affects NDR in a major way, in the sense that lower bandwidth usage means less congestion, which results in higher NDR. As a result, for the purpose of increasing ADR, it is reasonable for ICTL to simply optimize for low bandwidth.
 
 
 
-\chapter{Acknowledgement}
+\subsection{Cycle Length and Bandwidth}
+\subsection{Payload Compression}
+
+\section{Adaptive ICTL}
+
+\subsection{Design}
+\subsection{Experimental Results}
+
+\section{ICTL Running Time Benchmarks}
+
+\section{Other Considerations}
+
+\subsection{Encryption}
+
+\section{Conclusion}
+
+\chapter{Summary}
+
+
+
 
 
 \bibliographystyle{IEEEtran}
