@@ -28,9 +28,11 @@ const addChart2d = (id, chart_fn) => {
       });
     });
     extend(true, options, { xAxis: { labels: { formatter: function() {
-      return Highcharts.dateFormat("%H:%M", this.value);
+      return Highcharts.dateFormat("%H:%M:%S", this.value);
     } } } });
     extend(true, options, { subtitle: { text: chart_fn } });
+    extend(true, options, { tooltip: {
+      dateTimeLabelFormats: { second: "%H:%M:%S" } } });
 
     new Highcharts.Chart(id, options);
   });

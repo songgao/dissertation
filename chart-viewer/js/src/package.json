@@ -10,7 +10,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "extend": "^3.0.0",
-    "highcharts": "^4.2.3",
+    "highcharts": "^4.2.4",
     "jquery": "^2.2.3",
     "moment": "^2.12.0",
     "react": "^15.0.1",

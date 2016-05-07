@@ -2,6 +2,7 @@
  
 const Highcharts = require('highcharts');
 require('highcharts/highcharts-3d')(Highcharts);
+require('highcharts/modules/exporting')(Highcharts);
 const $ = require('jquery');
 const extend = require('extend');
 const renderCharts = require('./lib/renderCharts');
