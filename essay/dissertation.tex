@@ -367,7 +367,7 @@ To find out this boundary, \texttt{iperf} is used to measure the throughput on s
 With a single pair of sender/receiver, UDP throughput achieves around 480 Mbps. This is mainly bounded by processor. As the number pairs increases to 2, more processor cores are able to work in parallel. As a result both pair get the same throughput, doubling the total throughput. However, when the number of pairs keep increasing, more parallel routines than the number of cores are requested, in which case the total throughput cannot increase linearly as number of pairs increases. Figure~\ref{fig:passthrough} is a stacked area plot showing UDP throughput with different pairs simutaneously transmitting. The total throughput tops at around 1200 Mbps, with each transmitting pair gets about 200 Mbps throughput.
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{figures/squirrel/passthrough.pdf}
+  \includegraphics[width=\textwidth]{figures/results/passthrough.pdf}
   \caption{\label{fig:passthrough}Stacked Throughput using PassThrough Wireless Model}
 \end{figure}
 
