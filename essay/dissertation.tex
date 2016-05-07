@@ -350,7 +350,7 @@ A simple networking testing tool, \texttt{iperf}, is used as testing target. UDP
       \includegraphics[width=\textwidth]{figures/results//effectiveness_squirrel.pdf}
       \caption{\label{fig:squirrel_preliminary_squirrel}Squirrel Emulator UDP Throughput}
     \end{subfigure}
-    \caption{\label{fig:squirrel_preliminary}Preliminary Squirrel Testing Results: UDP Throughput in Android v.s. Squirrel Emulator}
+    \caption{\label{fig:squirrel_preliminary}Squirrel CSMA/CA Model Testing: UDP Throughput in Android v.s. Squirrel Emulator}
   \end{center}
 \end{figure}
 
@@ -387,7 +387,7 @@ In many cases for 802.11 communication, channel congestion is a key issue that a
   \item Safety applications require real-time low latency data, thus is less tolerable to channel congestion. For example, in vehicle platooning, the back vehicle relies on periodical dynamics data from the front vehicle to maintain a close following distance. When channel is congested, several message can be lost consecutively. In this case, the back vehicle has to make the worst assumption about the front vehicle, and apply maximum braking in order to avoid collision.
 \end{enumerate}
 
-To show channel congestion can happen in platooning applications, some calculation is shown to estimate bandwidth usage in a typical platooning scenario on a busy segment of a highway environment. For analysis purposes, several assumptions are made to assemble a reasonable heavy-use case:
+To show channel congestion can happen in platooning applications, some calculation is shown to estimate bandwidth usage in a typical platooning scenario on a busy segment of a highway environment. For analysis purposes, several assumptions are made and justified to assemble a reasonable heavy-use case:
 
 \begin{enumerate}
   \item Average following distance: 20 meters. Study \cite{watts2015computational} has shown that fuel saving is significant when following distance is below 40 feet (about 13.3 meters). Volve \cite{volvo2015} has done real-world experiments with following distance of 7 meters. When there is traffic jam, following distance can be further reduced. Thus, assuming nearly full market penetration of Intelligent Transportation System (ITS\nomenclature{ITS}{Intelligent Transportation System}), 10 meters (or 0.33 seconds headway at 110 km/h) is a reasonable assumption for a moderately heavy-use case.
@@ -574,24 +574,54 @@ The trace files were logged by platooning applications running on two heavy vehi
 
 Each event from the trace file is tagged with a timestamp. \texttt{truck-playback} synchronizes the timeline so that a time point from wall-clock during emulation is aligned with a time point from trace file's time while tests were conducted in real-world. In other words, a fixed offset is set between the playback's timeline and the trace file's timeline. When \texttt{truck-playback} replays an event, it first calculates a deadline based on the timeline offset. In most cases, the deadline is after current wall-clock time. A difference is calculated between the two, and \texttt{truck-playback} waits for such time duration by calling \texttt{sleep()} before actually replaying the event. This ensures that events happen at exactly same relative times. For example, DSRC messages are sent at same frequencies as the trace file dictates. When many nodes are emulated on the same computer, occasionally, the deadline may have already passed at time it's calculated. In this case, this particularly event is sent immediately (without calling \texttt{sleep()}, but not able to meet the deadline when replayed. If too many events cannot meet deadline, the results would not be authentic. As a result, \texttt{truck-playback} logs the such incidents to be examined afterwards.
 
-The \texttt{truck-playback} uses a WSMP implementation written in Go, which uses system call interfaces to pass Logical Link Control (LLC\nomenclature{LLC}{Logical Link Control}) layer frames into the kernel. In squirrel emulation, the frames are then passed to squirrel worker through \texttt{tap0} interface, and go through the data flow as demonstrated in Figure~\ref{fig:squirrel_arch}. Conceptually, \texttt{truck-playback} works as a DSRC application as shown in Figure~\ref{fig:playback_arch}.
+The \texttt{truck-playback} uses a WSMP implementation written in Go, which uses system call interfaces to pass messages into, or read messages from Logical Link Control (LLC\nomenclature{LLC}{Logical Link Control}) layer in the kernel. In squirrel emulation, LLC is handled by squirrel worker through \texttt{tap0} interface, as demonstrated in Figure~\ref{fig:squirrel_arch}. Conceptually, \texttt{truck-playback} works as a DSRC application as shown in Figure~\ref{fig:playback_arch}.
 
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=.6\textwidth]{figures/playback_arch.pdf}
-    \caption{\label{playback_arch}\texttt{truck-playback} as DSRC Application}
+    \caption{\label{fig:playback_arch}\texttt{truck-playback} as DSRC Application}
   \end{center}
 \end{figure}
 
+When \texttt{truck-playback} replays a DSRC transmission event, it logs the replay, including a timestamp, the GPS position of the node when the message is sent, a message counter, and frame size. Similarly, when it receives a message from WSMP, it logs the reception as well, including a timestamp, a message counter, source MAC address, and frame size. With these information, we can study bandwidth and delivery ratio of ICTL, under different parameter scenarios.
+
 \subsection{Deployment}
 
-The squirrel emulator is deployed on a CoreOS \cite{coreos} cluster. The cluster consists of one physical workstation, and one virtual machine. For this study, only the physical workstation is used. The workstation has an Intel(R) Xeon(R) CPU W3680 with 6 cores.
+The squirrel emulator can be deployed on a cluster, where one node runs squirrel master, and squirrel workers run on other nodes. In this study, however, the cluster only consists of one physical workstation. The workstation has one Intel(R) Xeon(R) CPU W3680 with 6 cores. The CPU does not have hyper-threading technology, so at maximum 6 threads (as opposed to 12 threads had it support hyper-threading technology) can run simultaneously on the CPU at any time.
 
-TODO
+For its light-weight and scalability, OSLV is chosen to provide proper isolation for different emulated nodes. Specifically, each squirrel worker node runs in an application container \cite{menage2007adding}. With different kernel namespaces, one isolated complete networking stack is allocated for each squirrel worker node. There are several open source softwares providing Linux application container runtime, namely Docker, LXC, and Rkt. Each of them provides a set of tools to build container image, and to run and configure application containers. In this study, Rkt \cite{rkt} is used. The operating system on the workstation is CoreOS \cite{coreos}, a modern Linux distribution designed specifically for running application containers.
+
+Since all components are written in Go, they are statically linked into independent executable binaries, which makes packaging Rkt images very straightforward. The squirrel master image only contains the \texttt{squirrel-master} binary. The squirrel worker image contains the \texttt{squirrel-worker} binary, \texttt{truck-playback} binary, and some common tools such as \texttt{tcpdump} and a shell. Since application containers provide filesystem isolation as well, proper filesystem mount points are also configured for squirrel worker nodes to provide input data trace files as well as collect logs from \texttt{truck-playback}.
+
+CoreOS uses \texttt{systemd} as its init system. To manage massive squirrel worker nodes for experiments, \texttt{systemd} unit files are written to use \texttt{systemd} to automatically run Rkt containers, attach directories to mount points, and provide initial parameter settings.
+
+\subsection{Triggering Congestion}
+
+A major goal that ICTL tries to achieve by reducing bandwidth usage is to improve delivery ratio when network is congested. As a result, to study and improve ICTL, it is necessary to create congestion in the emulation environment. Section~\ref{sec:problem_congestion} uses 400 vehicles in the analysis. However, on a single workstation, it is hard to emulate 400 nodes in real time. The data trace file we acquired use 50 Hz message rate, which is higher than 20 Hz in the analysis. This already helps with triggering congestion. In addition, several methods are used to help trigger congestion with less than 15 emulated nodes.
+
+\begin{enumerate}
+  \item 6 Mbps (instead of 3 Mbps) is used as MAC layer data rate setting in squirrel's CSMA/CA model.
+  \item Each message is replicated 12 times, in 12 separate WSMs, before being encapsulated and sent as a LLC layer frame. This increases frame size, in case of original data trace, from 117 bytes to 1250 bytes.
+\end{enumerate}
+
+Part of replicated messages in second method can also be seen as adding other DSRC messages into the frame. An important example is re-broadcast messages that are required to deliver message to vehicles outside transmission range.
+
+
+\subsection{First Glance}
+
+A simple test is run in the emulation platform to demonstrated the effectiveness of ICTL. In Figure~\ref{fig:first_glance}, three strategies are compared. ``Raw" series shows the bandwidth usage of the original data trace; ``Raw Compressed" shows the bandwidth usage of the data trace compressed with a traditional compression algorithm \footnote{\texttt{flate} is used here. Please refer to Section~\ref{sec:payload_compression} for more information on choice among different compression algorithms.}; and ``ICTL CL=3" shows the bandwidth usage of the data trace compressed using ICTL, with fixed CL 3.
+
+\begin{figure}[h]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/first_glance.pdf}}
+  \caption{\label{fig:first_glance}Bandwidth usage test: Original, Traditional Compression, and ICTL }
+\end{figure}
+
+In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over original data trace uses $\ge$ 59 KB/s. With ICTL, the bandwidth usage is always below 40 KB/s, yielding more than 30\% bandwidth savings.
+
+The test demonstrates the effectiveness of the basic idea of ICTL. Following sections in this chapters studies behavior and performance attributes of ICTL, and describe ways to optimize the algorithm for bandwidth and delivery ratio.
+
 
 \section{Performance Studies}
-
-TODO
 
 \subsection{Cycle Length and Application Delivery Ratio}
 \label{sec:cl_adr}
@@ -669,21 +699,66 @@ Equation~\ref{eq:adr} shows the relationship between ADR, NDR, and CL. This is i
 
 Bandwidth usage affects NDR in a major way, in the sense that lower bandwidth usage means less congestion, which results in higher NDR. As a result, for the purpose of increasing ADR, it is reasonable for ICTL to simply optimize for low bandwidth.
 
+\subsection{Location and Bandwidth}
 
+ICTL compresses difference between frames, so it uses less bandwidth when frames are more similar, and uses more bandwidth when frames change more drastically. When a vehicle goes through a curve, vehicle's status, such as yaw rate, may change more than on a straight line. Intuitively, one may think ICTL should result in more bandwidth usage at curves compared to on straight lines. To find out whether this is true, Figure~\ref{fig:3d}, a 3D version of Figure~\ref{fig:first_glance}, is generated, to show bandwidth usage at different locations.
+
+\begin{figure}[h]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/3d1.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/3d2.pdf}}
+  \caption{\label{fig:3d}3D bandwidth graph from two viewing angles}
+\end{figure}
+
+As shown in the figure, ICTL does not generate more bandwidth usage at curves. We believe this is because the changes of vehicle status at curves are gradual and slow enough to not cause drastic change in DSRC messages. Thus, they are not reflected in ICTL bandwidth usage.
 
 \subsection{Cycle Length and Bandwidth}
+\label{sec:cl_bandwidth}
+
+CL affects bandwidth usage in a major, but complex way. DFs are generally much smaller than KFs. But the actual size of a DF depend on how different it is from the KF it uses as the reference frame. On one hand, since DFs are smaller, more DFs should be sent, thus longer CL is better. On the other hand, longer CL means the DFs towards the end of an ICTL Cycle is much more different from the KF, increasing size of DFs. As a result, longer CL does not always result in lower bandwidth usage.
+
+\begin{figure}[h]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cycle_length.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cycle_length_zoom.pdf}}
+  \caption{\label{fig:cl}Bandwidth usage with different CL: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+This theory is verified by tests. Figure~\ref{fig:cl} shows bandwidth usage of ICTL with different fixed CLs, using the same data trace. Apparently when CL is set to 7, the bandwidth usage is, in most of time, higher than when CL is set to 5, but they are both generally lower than when CL is set to 2. Furthermore, different data series cross each other, meaning that even for the same data trace, there is no CL setting that works the best all the time.
+
+This shows that, it is challenging to set a proper fixed CL, and that with a fixed CL, ICTL is unable to always yield low bandwidth usage. With this in mind, an adaptive algorithm is designed, as described in Section~\ref{sec:adaptive_ictl}.
+
 \subsection{Payload Compression}
+\label{sec:payload_compression}
+
+ICTL has a header field of Compression Options, which carries information on how the payload is compressed before transmitted. This allows the receiver dynamically configure the decoder based on the header, and accept different compression algorithms and configurations. The compression algorithm used to compress DF payload affects overall size of DFs, so it is important to use one that performs well for such data.
+
+At the beginning of this study, it was believed that, for different DFs, the best performing compression algorithm should be different. In other words, there should be no algorithm that worked for all DFs. As a result, a mechanism was designed in the ICTL implementation that, if the compression algorithm was not specified, it would iterate through a pre-defined selection of algorithms, and pick the one that yields smallest compressed payload.
+
+To find out whether it makes sense to do so, tests are done to compare different compression algorithms for payload of frames. Specifically, \texttt{flate}, \texttt{zlib}, \texttt{gzip}, \texttt{lzw} are tested. Figure~\ref{fig:cmp} presents the results of the tests, which is contradictory to what was expected. Different data series generally do not cross each other, meaning their performance is fairly stable across different DFs. Among the four algorithms, \texttt{flate} and \texttt{lzw}, always yield smallest compressed payloads, with \texttt{flate} being slight better most of time.
+
+Interestingly, \texttt{zlib} and \texttt{gzip} produces larger data than uncompressed. This suggests that \texttt{zlib} and \texttt{gzip} have compressing header overheads that is large enough to make them not suitable for compressing small size data, thus should not be directly used to compress payload of KFs and DFs.
+
+\begin{figure}[h]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cmp.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cmp_zoom.pdf}}
+  \caption{\label{fig:cmp}Bandwidth usage with different payload compression algorithms: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+Guided by findings here, the rest of tests of this study use \texttt{flate} in ICTL.
 
 \section{Adaptive ICTL}
+\label{sec:adaptive_ictl}
+
+Section~\ref{sec:cl_bandwidth} shows that a fixed CL cannot constantly perform well in terms of bandwidth usage. In other words, CL should be chosen dynamically as ICTL is running. Looking at this from a different perspective, CL is merely the observed behavior of ICTL. What should be determined dynamically is actually, at any given time, whether ICTL should send a DF, i.e., continue within the same ICTL Cycle, or a KF, i.e., start a new ICTL Cycle. The \texttt{shouldDF()} function in Section~\ref{sec:ictl_process} is where this decision is made.
+
+This sections describes an adaptive ICTL algorithm, in which a \texttt{shouldDF()} is designed to optimize for bandwidth usage.
 
 \subsection{Design}
+
+
+
 \subsection{Experimental Results}
 
 \section{ICTL Running Time Benchmarks}
-
-\section{Other Considerations}
-
-\subsection{Encryption}
 
 \section{Conclusion}
 
