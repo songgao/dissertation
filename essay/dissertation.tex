@@ -9,6 +9,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{listings}
 \usepackage{amsmath}
+\usepackage{float}
 \lstset{tabsize=2,basicstyle=\footnotesize\ttfamily}
 
 
@@ -81,7 +82,7 @@ DSRC is a recent technology that was just standardized a few years ago. It has n
 There are two major contribution is proposed study:
 \begin{itemize}
   \item First, a wireless emulator is designed and implemented to emulate DSRC networks. It provides a way to test DSRC applications in a scalable way, using real application software. Unlike simulation approach where simulation scripts need to be written in order to test the idea, in the emulator the testing targets are application softwares that can be directly deployed to real-world devices.
-  \item Second, a compression technique, Interframe Compression Transmission Layer (ICTL\nomenclature{ICTL}{Interframe Compression Transmission Layer}), is introduced. The compression layer compresses the difference between consecutive frames, rather than the frames themselves. It reduces bandwidth usage in vehicular applications, particularly those that periodically sends messages that do not change dramatically. By reducing the bandwidth usage, it makes channel congestions less likely to happen.
+  \item Second, a compression technique, Interframe Compression Transmission Layer (ICTL\nomenclature{ICTL}{Interframe Compression Transmission Layer}), is introduced. The compression layer compresses the difference between consecutive frames, rather than the frames themselves. It reduces bandwidth consumption in vehicular applications, particularly those that periodically sends messages that do not change dramatically. By reducing the bandwidth consumption, it makes channel congestions less likely to happen.
 \end{itemize}
 
 The ICTL have been fully implemented, and tests have been conducted on the emulator to study the characteristics of the algorithm under different situations. TODO
@@ -177,7 +178,7 @@ The study concluded that many factors can result in reduction in delivery ratio 
   \item on hilly road, vehicle needs to rely on terrain's reflection because antennas are not parallel.
 \end{itemize}
 
-However, in all scenarios, using alternate mode improves delivery ratio significantly. To be more specific, the pairwise delivery ratio is above $90\%$ for data rates up to 6 Mbps in all scenarios, even when using a side antenna only delivers less than $20\%$ messages. In some scenarios, alternate mode even achieves above $90\%$ delivery ratio for 27 Mbps. \cite{songDSRC2016} For the dissertation, this is an important conclusion from the study. It suggests that it is most feasible to use alternate mode all the time. Since alternate mode requires more bandwidth usage, how to reduce bandwidth while maintaining reliability becomes a more important issue to solve.
+However, in all scenarios, using alternate mode improves delivery ratio significantly. To be more specific, the pairwise delivery ratio is above $90\%$ for data rates up to 6 Mbps in all scenarios, even when using a side antenna only delivers less than $20\%$ messages. In some scenarios, alternate mode even achieves above $90\%$ delivery ratio for 27 Mbps. \cite{songDSRC2016} For the dissertation, this is an important conclusion from the study. It suggests that it is most feasible to use alternate mode all the time. Since alternate mode requires more bandwidth, how to reduce bandwidth while maintaining reliability becomes a more important issue to solve.
 
 \chapter{Emulation Infrastructure}
 
@@ -387,7 +388,7 @@ In many cases for 802.11 communication, channel congestion is a key issue that a
   \item Safety applications require real-time low latency data, thus is less tolerable to channel congestion. For example, in vehicle platooning, the back vehicle relies on periodical dynamics data from the front vehicle to maintain a close following distance. When channel is congested, several message can be lost consecutively. In this case, the back vehicle has to make the worst assumption about the front vehicle, and apply maximum braking in order to avoid collision.
 \end{enumerate}
 
-To show channel congestion can happen in platooning applications, some calculation is shown to estimate bandwidth usage in a typical platooning scenario on a busy segment of a highway environment. For analysis purposes, several assumptions are made and justified to assemble a reasonable heavy-use case:
+To show channel congestion can happen in platooning applications, some calculation is shown to estimate bandwidth requirement in a typical platooning scenario on a busy segment of a highway environment. For analysis purposes, several assumptions are made and justified to assemble a reasonable heavy-use case:
 
 \begin{enumerate}
   \item Average following distance: 20 meters. Study \cite{watts2015computational} has shown that fuel saving is significant when following distance is below 40 feet (about 13.3 meters). Volve \cite{volvo2015} has done real-world experiments with following distance of 7 meters. When there is traffic jam, following distance can be further reduced. Thus, assuming nearly full market penetration of Intelligent Transportation System (ITS\nomenclature{ITS}{Intelligent Transportation System}), 10 meters (or 0.33 seconds headway at 110 km/h) is a reasonable assumption for a moderately heavy-use case.
@@ -398,7 +399,7 @@ To show channel congestion can happen in platooning applications, some calculati
   \item Platooning message rate: 20 Hz. This assumes dual-antenna configuration and alternate mode. In other words, at 20 Hz, the effective message rate is 10 Hz, or one message every 100 milliseconds. 100 milliseconds results in about 3 meters in distance at a speed of 110 km/h. Depending on the braking system performance of the vehicle, this normally means tolerance of no more than 2 consecutive message losses before the control system has to conservatively apply a hard braking.
 \end{enumerate}
 
-Consider a target vehicle on a busy segment of a highway. With 400 meters' interference range, the vehicle is interfered by vehicles within 400 meters radius, which means an 800 meters long segment on the highway. Assuming full market penetration and full road utilization, linear vehicle density is $\frac{1 vehicle}{20 (meters*lane)}=0.05 vehicle/meter/lane$. With 10 lanes in total for both directions, there are $800 meters * 10 lanes * 0.05 vehicle/meter/lane = 400 vehicles$ within the interference range. At 20 Hz per vehicle, messages are being sent at $400 vehicles * 20 Hz/vehicle=8,000 Hz$ within the interference range. Multiplying this by the message size 150 bytes, the total bandwidth usage can be calculated as $8,000 Hz * 150 bytes = 1.2 MB/second$, or 9.6 Mbps.
+Consider a target vehicle on a busy segment of a highway. With 400 meters' interference range, the vehicle is interfered by vehicles within 400 meters radius, which means an 800 meters long segment on the highway. Assuming full market penetration and full road utilization, linear vehicle density is $\frac{1 vehicle}{20 (meters*lane)}=0.05 vehicle/meter/lane$. With 10 lanes in total for both directions, there are $800 meters * 10 lanes * 0.05 vehicle/meter/lane = 400 vehicles$ within the interference range. At 20 Hz per vehicle, messages are being sent at $400 vehicles * 20 Hz/vehicle=8,000 Hz$ within the interference range. Multiplying this by the message size 150 bytes, the total demanded bandwidth can be calculated as $8,000 Hz * 150 bytes = 1.2 MB/second$, or 9.6 Mbps.
 
 With variables defined as in Table~\ref{tab:bandwidth_equation_variable}, the calculation above can be represented in a streamlined equation as shown in Equation~\ref{eq:bandwidth}.
 
@@ -407,7 +408,7 @@ With variables defined as in Table~\ref{tab:bandwidth_equation_variable}, the ca
     \begin{tabular}{r l}
       \hline
       Variable & Definition \\ \hline
-      $B$ & Demanded bandwidth usage within interference range \\
+      $B$ & Demanded bandwidth within interference range \\
       $r$ & Interference range \\
       $l$ & Total number of lanes in both directions \\
       $d$ & Average following distance \\
@@ -428,11 +429,11 @@ With variables defined as in Table~\ref{tab:bandwidth_equation_variable}, the ca
 
 9.6 Mbps is already greater than the MAC layer data rate 6 Mbps. Furthermore, due to the channel switching strategy defined in IEEE 1609.4 (see Section~\ref{sec:80211p}), only half of the channel time can be used. This reduces the available data rate to 3 Mbps. Other than this, there are MAC layer overheads, such as the contention window and various spacing in CSMA, management frames and control frames. These overheads further reduces the available bandwidth available for upper layers.
 
-Even worse, the calculation above only considers the platooning message, which is an extended version of BSM. In addition to BSM, SAE J2735 also defines other message types usable in vehicular environment, including but not limited to: Common Safety Request, Emergency Vehicle Alert Message, Roadside Alert, Traveler Information, NMEA Corrections \cite{sae2016j2735,kenney2011}. These messages all increase bandwidth usage, making the congestion worse.
+Even worse, the calculation above only considers the platooning message, which is an extended version of BSM. In addition to BSM, SAE J2735 also defines other message types usable in vehicular environment, including but not limited to: Common Safety Request, Emergency Vehicle Alert Message, Roadside Alert, Traveler Information, NMEA Corrections \cite{sae2016j2735,kenney2011}. These messages all increase bandwidth consumption, making the congestion worse.
 
-In conclusion, the DSRC technology will have congestion problems when it is fully deployed. It is necessary to apply various techniques to reduce bandwidth usage in DSRC applications in order to relieve channel congestion.
+In conclusion, the DSRC technology will have congestion problems when it is fully deployed. It is necessary to apply various techniques to reduce bandwidth consumption in DSRC applications in order to relieve channel congestion.
 
-To reduce bandwidth usage for platooning application and potential other vehicular applications, a transmission mechanism that uses interframe compression is designed in this study.
+To reduce bandwidth consumption for platooning application and potential other vehicular applications, a transmission mechanism that uses interframe compression is designed in this study.
 
 \section{Related Work}
 
@@ -442,14 +443,14 @@ Study \cite{huang2010adaptive} proposed an adaptive congestion control method th
 
 SAE J2945.1 \cite{sae2016j29451}, a standard that specifies the system requirements for vehicle-to-vehicle safety communications, includes a congestion control algorithm for BSMs. The algorithm inspects channel busy percentage and packet error rate, to make transmission decisions, including transmission schedule and radiate power.
 
-These techniques in vehicular networks reduces bandwidth usage by various congestion control methods. They reduce bandwidth usage of vehicular applications significantly, but takes a different approach than this study:
+These techniques in vehicular networks reduces bandwidth consumption by various congestion control methods. They reduce bandwidth consumption of vehicular applications significantly, but takes a different approach than this study:
 
 \begin{itemize}
   \item First, the congestion control algorithms make decisions on when to limit message rate or transmitting powers. Consequently, message frequency or the amount of information transmitted are sacrificed, i.e., the networking service level degrades. In other words, to transmit the same amount of data, the required bandwidth is not reduced.
   \item Second, such congestion control algorithms are most effective when congestion already happens. They serve as a remedy for the consequences from congestion. However, the congestion control algorithms generally have little effect in prevention of congestion.
 \end{itemize}
 
-This study, however, takes a different approach. Rather than trying to deal with the congestion when it happens, this study introduces a compression algorithm that helps postpone the point where congestion happens, by reducing bandwidth usage without sacrificing the amount of information transmitted.
+This study, however, takes a different approach. Rather than trying to deal with the congestion when it happens, this study introduces a compression algorithm that helps postpone the point where congestion happens, by reducing bandwidth consumption without sacrificing the amount of information transmitted.
 
 \section{Inspiration and Discussion}
 
@@ -596,8 +597,9 @@ Since all components are written in Go, they are statically linked into independ
 CoreOS uses \texttt{systemd} as its init system. To manage massive squirrel worker nodes for experiments, \texttt{systemd} unit files are written to use \texttt{systemd} to automatically run Rkt containers, attach directories to mount points, and provide initial parameter settings.
 
 \subsection{Triggering Congestion}
+\label{sec:trigger_congestion}
 
-A major goal that ICTL tries to achieve by reducing bandwidth usage is to improve delivery ratio when network is congested. As a result, to study and improve ICTL, it is necessary to create congestion in the emulation environment. Section~\ref{sec:problem_congestion} uses 400 vehicles in the analysis. However, on a single workstation, it is hard to emulate 400 nodes in real time. The data trace file we acquired use 50 Hz message rate, which is higher than 20 Hz in the analysis. This already helps with triggering congestion. In addition, several methods are used to help trigger congestion with less than 15 emulated nodes.
+A major goal that ICTL tries to achieve by reducing bandwidth consumption is to improve delivery ratio when network is congested. As a result, to study and improve ICTL, it is necessary to create congestion in the emulation environment. Section~\ref{sec:problem_congestion} uses 400 vehicles in the analysis. However, on a single workstation, it is hard to emulate 400 nodes in real time. The data trace file we acquired use 50 Hz message rate, which is higher than 20 Hz in the analysis. This already helps with triggering congestion. In addition, several methods are used to help trigger congestion with less than 15 emulated nodes.
 
 \begin{enumerate}
   \item 6 Mbps (instead of 3 Mbps) is used as MAC layer data rate setting in squirrel's CSMA/CA model.
@@ -609,14 +611,14 @@ Part of replicated messages in second method can also be seen as adding other DS
 
 \subsection{First Glance}
 
-A simple test is run in the emulation platform to demonstrated the effectiveness of ICTL. In Figure~\ref{fig:first_glance}, three strategies are compared. ``Raw" series shows the bandwidth usage of the original data trace; ``Raw Compressed" shows the bandwidth usage of the data trace compressed with a traditional compression algorithm \footnote{\texttt{flate} is used here. Please refer to Section~\ref{sec:payload_compression} for more information on choice among different compression algorithms.}; and ``ICTL CL=3" shows the bandwidth usage of the data trace compressed using ICTL, with fixed CL 3.
+A simple test is run in the emulation platform to demonstrated the effectiveness of ICTL. In Figure~\ref{fig:first_glance}, three strategies are compared. ``Raw" series shows the demanded bandwidth of the original data trace; ``Raw Compressed" shows the demanded bandwidth of the data trace compressed with a traditional compression algorithm \footnote{\texttt{flate} is used here. Please refer to Section~\ref{sec:payload_compression} for more information on choice among different compression algorithms.}; and ``ICTL CL=3" shows the demanded bandwidth of the data trace compressed using ICTL, with fixed CL 3.
 
 \begin{figure}[h]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/first_glance.pdf}}
-  \caption{\label{fig:first_glance}Bandwidth usage test: Original, Traditional Compression, and ICTL }
+  \caption{\label{fig:first_glance}Bandwidth test: Original, Traditional Compression, and ICTL }
 \end{figure}
 
-In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over original data trace uses $\ge$ 59 KB/s. With ICTL, the bandwidth usage is always below 40 KB/s, yielding more than 30\% bandwidth savings.
+In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over original data trace uses $\ge$ 59 KB/s. With ICTL, the demanded bandwidth is always below 40 KB/s, yielding more than 30\% bandwidth savings.
 
 The test demonstrates the effectiveness of the basic idea of ICTL. Following sections in this chapters studies behavior and performance attributes of ICTL, and describe ways to optimize the algorithm for bandwidth and delivery ratio.
 
@@ -697,11 +699,11 @@ Combining Equation~\ref{eq:expected_nc} and \ref{eq:adr0},
 
 Equation~\ref{eq:adr} shows the relationship between ADR, NDR, and CL. This is illustrated in Figure~\ref{fig:adr}, which shows ADR as function of NDR for different CL values. Although higher CL values brings down lower ADR overall, ADR is not as sensitive to CL changes as to NDR changes. In other words, ADR is more affected by NDR.
 
-Bandwidth usage affects NDR in a major way, in the sense that lower bandwidth usage means less congestion, which results in higher NDR. As a result, for the purpose of increasing ADR, it is reasonable for ICTL to simply optimize for low bandwidth.
+Bandwidth consumption affects NDR in a major way, in the sense that lower bandwidth consumption means less congestion, which results in higher NDR. As a result, for the purpose of increasing ADR, it is reasonable for ICTL to simply optimize for low bandwidth.
 
 \subsection{Location and Bandwidth}
 
-ICTL compresses difference between frames, so it uses less bandwidth when frames are more similar, and uses more bandwidth when frames change more drastically. When a vehicle goes through a curve, vehicle's status, such as yaw rate, may change more than on a straight line. Intuitively, one may think ICTL should result in more bandwidth usage at curves compared to on straight lines. To find out whether this is true, Figure~\ref{fig:3d}, a 3D version of Figure~\ref{fig:first_glance}, is generated, to show bandwidth usage at different locations.
+ICTL compresses difference between frames, so it uses less bandwidth when frames are more similar, and uses more bandwidth when frames change more drastically. When a vehicle goes through a curve, vehicle's status, such as yaw rate, may change more than on a straight line. Intuitively, one may think ICTL should result in more bandwidth consumption at curves compared to on straight lines. To find out whether this is true, Figure~\ref{fig:3d}, a 3D version of Figure~\ref{fig:first_glance}, is generated, to show bandwidth consumption at different locations.
 
 \begin{figure}[h]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/3d1.pdf}}
@@ -709,22 +711,22 @@ ICTL compresses difference between frames, so it uses less bandwidth when frames
   \caption{\label{fig:3d}3D bandwidth graph from two viewing angles}
 \end{figure}
 
-As shown in the figure, ICTL does not generate more bandwidth usage at curves. We believe this is because the changes of vehicle status at curves are gradual and slow enough to not cause drastic change in DSRC messages. Thus, they are not reflected in ICTL bandwidth usage.
+As shown in the figure, ICTL does not generate more demanded bandwidth at curves. We believe this is because the changes of vehicle status at curves are gradual and slow enough to not cause drastic change in DSRC messages. Thus, they are not reflected in ICTL bandwidth consumption.
 
 \subsection{Cycle Length and Bandwidth}
 \label{sec:cl_bandwidth}
 
-CL affects bandwidth usage in a major, but complex way. DFs are generally much smaller than KFs. But the actual size of a DF depend on how different it is from the KF it uses as the reference frame. On one hand, since DFs are smaller, more DFs should be sent, thus longer CL is better. On the other hand, longer CL means the DFs towards the end of an ICTL Cycle is much more different from the KF, increasing size of DFs. As a result, longer CL does not always result in lower bandwidth usage.
+CL affects demanded bandwidth in a major, but complex way. DFs are generally much smaller than KFs. But the actual size of a DF depend on how different it is from the KF it uses as the reference frame. On one hand, since DFs are smaller, more DFs should be sent, thus longer CL is better. On the other hand, longer CL means the DFs towards the end of an ICTL Cycle is much more different from the KF, increasing size of DFs. As a result, longer CL does not always result in lower demanded bandwidth.
 
 \begin{figure}[h]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cycle_length.pdf}}
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cycle_length_zoom.pdf}}
-  \caption{\label{fig:cl}Bandwidth usage with different CL: 30-minute view and 2-minute zoom-in view}
+  \caption{\label{fig:cl}Bandwidth with different CL: 30-minute view and 2-minute zoom-in view}
 \end{figure}
 
-This theory is verified by tests. Figure~\ref{fig:cl} shows bandwidth usage of ICTL with different fixed CLs, using the same data trace. Apparently when CL is set to 7, the bandwidth usage is, in most of time, higher than when CL is set to 5, but they are both generally lower than when CL is set to 2. Furthermore, different data series cross each other, meaning that even for the same data trace, there is no CL setting that works the best all the time.
+This theory is verified by tests. Figure~\ref{fig:cl} shows demanded bandwidth of ICTL with different fixed CLs, using the same data trace. Apparently when CL is set to 7, the demanded bandwidth is, in most of time, higher than when CL is set to 5, but they are both generally lower than when CL is set to 2. Furthermore, different data series cross each other, meaning that even for the same data trace, there is no CL setting that works the best all the time.
 
-This shows that, it is challenging to set a proper fixed CL, and that with a fixed CL, ICTL is unable to always yield low bandwidth usage. With this in mind, an adaptive algorithm is designed, as described in Section~\ref{sec:adaptive_ictl}.
+This shows that, it is challenging to set a proper fixed CL, and that with a fixed CL, ICTL is unable to always yield low demanded bandwidth. With this in mind, an adaptive algorithm is designed, as described in Section~\ref{sec:adaptive_ictl}.
 
 \subsection{Payload Compression}
 \label{sec:payload_compression}
@@ -740,7 +742,7 @@ Interestingly, \texttt{zlib} and \texttt{gzip} produces larger data than uncompr
 \begin{figure}[h]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cmp.pdf}}
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cmp_zoom.pdf}}
-  \caption{\label{fig:cmp}Bandwidth usage with different payload compression algorithms: 30-minute view and 2-minute zoom-in view}
+  \caption{\label{fig:cmp}Bandwidth with different payload compression algorithms: 30-minute view and 2-minute zoom-in view}
 \end{figure}
 
 Guided by findings here, the rest of tests of this study use \texttt{flate} in ICTL.
@@ -748,15 +750,90 @@ Guided by findings here, the rest of tests of this study use \texttt{flate} in I
 \section{Adaptive ICTL}
 \label{sec:adaptive_ictl}
 
-Section~\ref{sec:cl_bandwidth} shows that a fixed CL cannot constantly perform well in terms of bandwidth usage. In other words, CL should be chosen dynamically as ICTL is running. Looking at this from a different perspective, CL is merely the observed behavior of ICTL. What should be determined dynamically is actually, at any given time, whether ICTL should send a DF, i.e., continue within the same ICTL Cycle, or a KF, i.e., start a new ICTL Cycle. The \texttt{shouldDF()} function in Section~\ref{sec:ictl_process} is where this decision is made.
+Section~\ref{sec:cl_bandwidth} shows that a fixed CL cannot constantly perform well in terms of bandwidth consumption. In other words, CL should be chosen dynamically as ICTL is running. Looking at this from a different perspective, CL is merely the observed behavior of ICTL. What should be determined dynamically is actually, at any given time, whether ICTL should send a DF, i.e., continue within the same ICTL Cycle, or a KF, i.e., start a new ICTL Cycle. The \texttt{shouldDF()} function in Section~\ref{sec:ictl_process} is where this decision is made.
 
-This sections describes an adaptive ICTL algorithm, in which a \texttt{shouldDF()} is designed to optimize for bandwidth usage.
+This sections describes an adaptive ICTL algorithm, in which a \texttt{shouldDF()} is designed to optimize for bandwidth consumption.
 
 \subsection{Design}
 
+In an imaginary world where a node knows exactly what it will be transmitting for sufficiently large amount of time, and there are usable quantum computers that make it viable to exhaust large search space, this would be an optimization problem where the goal is to find globally optimal sequence of CLs for the entire transmission consisting all frames, that produces the lowest bandwidth consumption throughout the transmission. However, in real-world, ICTL is in no way able to predict what will be transmitted yet, and the node has limited hardware resources for searching for optimal solution. What ICTL can do is to look at locally available information, and make the best decision for bandwidth consumption based on a well selected metric. 
 
+In this study, ICTL uses a metric of average frame size of the ICTL Cycle up to the moment. More formally, for each frame being transmitted, the metric $\mu_{cycle}$ for $n$th frame within the ICTL Cycle is defined as Equation~\ref{eq:mu_cycle}:
+
+\begin{equation}
+  \mu_{cycle}^n = \frac{S_{KF} + \sum_{i=2}^{n}{S_{DF}^i}}{n}
+  \label{eq:mu_cycle}
+\end{equation}
+
+, where $S$ is the size of corresponding frame, and $i$ is the frame number within the ICTL Cycle. $i$ is always greater than or equal to 2, because the first frame in an ICTL Cycle is always a KF.
+
+$\mu_{cycle}^x$ is the key metric used by ICTL to determine whether a DF should be used for $x$th frame in the ICTL Cycle. First of all, ICTL keeps track of the immediately previous calculated metric, $\mu_{cycle}^{x-1}$. When ICTL transmits a frame $x$, it first encodes a DF, and inspects its size $S_{DF}^x$, with which $\hat{\mu}_{cycle}^x$ is calculated according to Equation~\ref{eq:mu_cycle}. If $\hat{\mu}_{cycle}^x < \mu_{cycle}^{x-1}$, it implies that, by sending another DF in this ICTL Cycle, the average frame size within the cycle can be further reduced, so ICTL should send a DF for this frame. In this case, $\hat{\mu}_{cycle}^x$ becomes $\mu_{cycle}^x$, and the DF is sent. Otherwise, a KF is sent, and a new ICTL Cycle is started.
+
+Following is a pseudo-code listing for logic to determine whether a DF should be sent, using Go-like syntax:
+
+\begin{singlespace}
+  \lstinputlisting{adaptive.go.lst}
+\end{singlespace}
+
+ICTL calls \texttt{sentDF()} and \texttt{sentKF()} methods whenever it sends a DF or a KF. It calls \texttt{shouldSendThisDF()} method to determine whether the next frame should be sent as DF or KF.
+
+This algorithm minimizes average frame size within ICTL Cycle. Although it only utilizes local information, the optimization is a step towards optimized CLs and achieves much lower bandwidth consumption.
 
 \subsection{Experimental Results}
+
+Tests are conducted to verify the adaptive ICTL algorithm. Figure~\ref{fig:adaptive_bandwidth}. shows bandwidth consumption with adaptive ICTL, and basice ICTL with different fixed CL settings.
+
+\begin{figure}[h]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_bandwidth.pdf}}
+  \caption{\label{fig:adaptive_bandwidth}Bandwidth consumption with adaptive ICTL and fixed CLs: 30-minute view}
+\end{figure}
+
+The figure shows that adaptive ICTL's bandwidth consumption is constantly the lowest among all data series. Furthermore, even the lowest one among fixed CLs is still 5 KB/s, or 15\% higher than adaptive ICTL. This verifies that a dynamic decision making process like adaptive ICTL works better than using a fixed CL, yielding much lower bandwidth consumption. Look at absolute numbers, adaptive ICTL's bandwidth consumption stays below 30 KB/s most of time. Compared with original data trace which constantly consumes 62.5 KB/s bandwidth, adaptive ICTL yields more than 50\% bandwidth saving.
+
+As discussed in Section~\ref{sec:cl_adr}, since NDR is the main affecting factor in ADR, and that bandwidth affects NDR in a major way, ICTL should optimize for bandwidth in order to achieve good ADR. To verify this, delivery ratio, specifically ADRs, of different congestion levels are studied as well. As explained in Section~\ref{sec:trigger_congestion}, messages are already replicated 12 times to make it easier to trigger congestion. Here different number of nodes are used to emulate different congestion level.
+
+\begin{figure}[H]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-4.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-4_zoom.pdf}}
+  \caption{\label{fig:adaptive_adr_4}ADR in adaptive ICTL compared other transmission strategies with 4 nodes: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+Figure~\ref{fig:adaptive_adr_4} shows ADR for adaptive ICTL compared with other transmission strategies when there are 4 nodes in emulation. In this case, all data series show a good delivery ratio, close or equal to 100\%. Note that even congestion is not triggered for any transmission strategy in this case, there are still packet losses. This is because squirrel's CSMA/CA model looks at leaky bucket usage, and uses a probability function based on it to determine whether a frame should be delivered. Arguably, this is emulating realistic experimental environment.
+
+\begin{figure}[H]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-6.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-6_zoom.pdf}}
+  \caption{\label{fig:adaptive_adr_6}ADR in adaptive ICTL compared other transmission strategies with 6 nodes: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+Figure~\ref{fig:adaptive_adr_6} shows ADR results when there are 6 nodes in emulation. In this case, congestion starts to happen for original data trace as well as using traditional compression method. All ICTL compressed data series still have close or equal to 100\% ADR.
+
+\begin{figure}[H]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-10.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-10_zoom.pdf}}
+  \caption{\label{fig:adaptive_adr_10}ADR in adaptive ICTL compared other transmission strategies with 10 nodes: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+Figure~\ref{fig:adaptive_adr_10} shows ADR results when there are 10 nodes in emulation. In this case, congestion starts to happen for ICTL with fixed CL settings. However, adaptive ICTL still delivers close to 100\% of messages.
+
+\begin{figure}[H]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-12.pdf}}
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr-12_zoom.pdf}}
+  \caption{\label{fig:adaptive_adr_12}ADR in adaptive ICTL compared other transmission strategies with 12 nodes: 30-minute view and 2-minute zoom-in view}
+\end{figure}
+
+Figure~\ref{fig:adaptive_adr_12} shows ADR results when there are 12 nodes in emulation. In this case, even adaptive ICTL starts to suffer from congestion. With congestion, adaptive ICTL has the best ADR among all transmission strategies.
+
+Putting these results together, Figure~\ref{fig:adaptive_adr_aggr} aggregates results from emulations with different number of nodes into a single plot, showing ADR in different transmission strategies, with different number of nodes in emulation.
+
+\begin{figure}[H]
+  \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/adaptive_adr.pdf}}
+  \caption{\label{fig:adaptive_adr_aggr}ADR in adaptive ICTL compared other transmission strategies with different node configurations aggregated in one plot}
+\end{figure}
+
+As shown in figures, adaptive ICTL has the best ADR among all fixed CL settings, and has significantly high ADR compared to original data trace or using a traditional compression algorithm, when wireless channel is congested.
+
+In addition, Adaptive ICTL also postpone the point when congestion happens, thus pushes back the point when a congestion control algorithm needs to be activated. This helps maintain a high service level of DSRC networking services.
 
 \section{ICTL Running Time Benchmarks}
 
