@@ -882,6 +882,30 @@ TODO
 
 \chapter{Future Work}
 
+As an extension of this work, multi-hop scenarios can be studied. This chapter describe a generan idea of using Multi-Point Relays (MPRs\nomenclature{MPR}{Multi-Point Relay}) in multi-hope vehicular networks.
+
+In this study, the effort has been focues on improving efficiency and reliability in single hop transmissions. However, for large vehicle platoons, this is not sufficient. Normally one of vehicles in the platoon serves as controller, and helps with coordinating different vehicles. As a result, it is important that platooning messages from the control vehicle can reach all vehicles in the platoon. For large platoons composed of many vehicles, it is normally impossible to transmit message from one end of platoon all the way to the other end within one hop. Hence, an efficient yet reliable rebroadcasting scheme needs to be developed for platooning applications.
+
+One of the ways to design such a rebroadcasting scheme is to use MPRs. MPR is a concept proposed by Optimized Link State Routing (OLSR\nomenclature{OLSR}{Optimized Link State Routing}) Protocol \cite{rfc3626}. As its name suggests, a MPR node relays messages for other nodes. To be more specific, each node has a minimum set of 1-hop neighbors as MPRs, so that there exists a path to each of its 2-hop neighbors via a node selected as an MPR. This way, a naive broadcast reaches all 1-hop neighbors, while MPRs relays the messages to 2-hop neighbors. Since only a subset of 1-hop neighbors are selected as MPRs, this reduces relaying overhead significantly. OLSR uses MPRs to relay routing information, but the concept of MPRs can be used for general purpose flooding as well. In vehicular network, platooning applications can construct MPRs to propagate platooning messages within the entire platoon.
+
+To calculate MPR set, each node needs to know its 1-hop neighbors and 2-hop neighbors. OLSR uses Hello message and Topology Control (TC\nomenclature{TC}{Topology Control}) messages to discover local topology. A hello message is like a beacon, which contains the node's basic information and allows nodes to discover 1-hop neighbors. A TC message contains all 1-hop neighbors of the node, which allows its 1-hop neighbors to sense 2-hop neighbors. These two messages are broadcasted periodically by each node.
+
+For a dynamic network like vehicular netowork, it is important to keep MPR set up to date in order to achieve good delivery ratio. The frequency that these messages are broadcasted is a key parameter to performance. If the messages are broadcasted too frequently, they generate a lot of overhead. If the messages are too infrequent, the MPR set may often be out of date, especially for a dynamic network where topology changes very often.
+
+In vehicular networks, vehicles are already broadcasting beacon-like messages through WSMP, such as BSM. These messages allows all vehicles sense 1-hop neighbors. If the vehicles construct TC messages as well, they can select MPRs in the same way as OLSR. This is a viable and straight-forward solution, but may cause large overhead for vehicular network, since the topology is more dynamic due to traffic condition, road condition, and terrains nearby.
+
+Fortunately, applications running on vehicles have access to vehicular dynamics data as well as GPS positions. They enable some interesting ways to maintain a healthy MPR set for each node.
+
+\begin{itemize}
+  \item GPS information can be used to assist selecting MPRs. The 1-hop neighbor set constructed with beacon messages provide information on communication range. Assuming that this range does not change dramatically within short period of time, it can be used to estimate 2-hop neighbors, allowing selecting MPR set without TC messages.
+  \item Vehicular dynamics data provides a history as well as current status of the vehicle's speed, acceleration, and steering information. Along with GPS positions, it is possible to predict each vehicle's trajectory. This is particularly useful when a vehicle is about to leave the platoon, or when a new vehicle is joining the platoon. This is the time when network topology of the platoon changes dramatically. Prediction on such an event allows each vehicle in the platoon to adjust MPR set accordingly to avoid high message loss rate by temporarily rebroadcasting more aggressively.
+\end{itemize}
+
+In short, vehicular environment and DSRC provide a way to construct MPR set without introducing TC messages to the system, and a way for vehicles to predict topology changes, making them more responsive to dynamic environments.
+
+A properly designed MPR algorithm for DSRC applications can reduce bandwidth consumption, thus improving ADR for multi-hop transmissions. Thus, this is a promising direction to improve vehicular networking efficiency and reliability for DSRC applications.
+
+
 
 
 \bibliographystyle{IEEEtran}
