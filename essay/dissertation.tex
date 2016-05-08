@@ -77,15 +77,13 @@ Thanks to its low latency advantage, DSRC enables various applications that, amo
 
 Among many safety related DSRC applications, vehicle platooning, or cooperative adaptive cruise control \cite{fhwa2015report}, provides many incentives to commercial companies. It frees drivers from throttle and braking control by delegating it to the vehicle's computer system. In addition to the safety enhancement, platooning makes vehicles run closer to each other. This improves aerodynamic efficiency and results in lower fuel cost. This study starts from this use case, and tries to improve efficiency and reliability of vehicular networking.
 
-DSRC is a recent technology that was just standardized a few years ago. It has not been deployed to vehicles in market yet. Most studies have been about interactions with a few vehicles only. However, when the majority of vehicles on roads are equipped with DSRC, the wireless channels will be heavily occupied, and there can be scalability problems. TODO
+DSRC is a recent technology that was just standardized a few years ago. It has not been deployed to vehicles in market yet. Most studies have been about interactions with a few vehicles only. However, when the majority of vehicles on roads are equipped with DSRC, the wireless channels will be heavily occupied, and there can be scalability problems. This study looks at these potential problems, and tries to provide a way to improve efficiency and reliability of DSRC networking services.
 
 There are two major contribution is proposed study:
 \begin{itemize}
   \item First, a wireless emulator is designed and implemented to emulate DSRC networks. It provides a way to test DSRC applications in a scalable way, using real application software. Unlike simulation approach where simulation scripts need to be written in order to test the idea, in the emulator the testing targets are application softwares that can be directly deployed to real-world devices.
-  \item Second, a compression technique, Interframe Compression Transmission Layer (ICTL\nomenclature{ICTL}{Interframe Compression Transmission Layer}), is introduced. The compression layer compresses the difference between consecutive frames, rather than the frames themselves. It reduces bandwidth consumption in vehicular applications, particularly those that periodically sends messages that do not change dramatically. By reducing the bandwidth consumption, it makes channel congestions less likely to happen.
+  \item Second, a compression technique, Interframe Compression Transmission Layer (ICTL\nomenclature{ICTL}{Interframe Compression Transmission Layer}), is introduced. The compression layer compresses the difference between consecutive frames, rather than the frames themselves. It reduces bandwidth consumption in vehicular applications, particularly those that periodically sends messages that do not change dramatically. By reducing the bandwidth consumption, it makes channel congestions less likely to happen. Behaviors of ICTL under different configuration and scenarios are studied, and the findings lead to the design of an adaptive ICTL algorithm, which further lower bandwidth consumption than basic ICTL algorithms.
 \end{itemize}
-
-The ICTL have been fully implemented, and tests have been conducted on the emulator to study the characteristics of the algorithm under different situations. TODO
 
 \chapter{Background}
 
@@ -254,8 +252,6 @@ The rest of this section is focused on realistic models that are used in this st
 \subsection{CSMC/CA Model}
 \label{sec:squirrel_csmaca}
 
-TODO overview
-
 In Ethernet, collision domain is bounded to well controlled hardware components such as Ethernet wires and hubs. In wireless networking, however, since electro-magnetic wave propagates freely, the collision domain is much larger and the bounds are less pronounced. This introduces some challenges specific for wireless networking. A typical one is the hidden node problem, where a node transmitting to a second node may not see other nodes that are in interference range of the second node but not the first one, causing collision at second node. This is the motivation that led to to design of collision avoidance in CSMA/CA algorithm that is widely used in 802.11 networks.
 
 \begin{figure}[h]
@@ -320,7 +316,7 @@ Putting it together, when a node transmits a unicast data frame, squirrel's CSMA
 
 There are two approaches to design a mobility manager. The most straight way is to have a mobility model within the mobility manager, which emits new positions for emulated nodes based on the mobility model. This approach is useful for studying a specific mobility pattern, such as random waypoint, that can be easily well modeled with equations and software programs. Another approach is to follow an external trace which consists of a time series position data for each node, and update positions for emulated nodes accordingly. This approach provides a way to utilize external mobility simulators, or trace files from real-world experiments.
 
-In this study, we acquired some real-world test traces. To produce most realistic results, the second approach is used. A Remote Procedure Call (RPC\nomenclature{RPC}{Remote Procedure Call}) updated mobility manager is designed. It includes a server that exposes several RPC services that allows a different process to update positions for emulated nodes. As opposed to directly reading from a trace file, the RPC updated mobility manager delegates the work or interpreting trace files to a different process. This provides flexibility on trace file formats. In addition, in many cases, trace files include many types of data including GPS positions, DSRC send and receive history, etc.. The RPC updated mobility manager allows a dedicated process to ``playback" all relevant events. TODO: mention \texttt{truck-playback}.
+In this study, we acquired some real-world test traces. To produce most realistic results, the second approach is used. A Remote Procedure Call (RPC\nomenclature{RPC}{Remote Procedure Call}) updated mobility manager is designed. It includes a server that exposes several RPC services that allows a different process to update positions for emulated nodes. As opposed to directly reading from a trace file, the RPC updated mobility manager delegates the work or interpreting trace files to a different process. This provides flexibility on trace file formats. In addition, in many cases, trace files include many types of data including GPS positions, DSRC send and receive history, etc.. The RPC updated mobility manager allows a dedicated process to replay all relevant events. This is used by \texttt{truck-playback}, which is described in Section~\ref{sec:truck_playback}.
 
 \section{Implementation}
 \label{sec:squirrel_implementation}
@@ -561,6 +557,7 @@ For analysis and experimental purposes, the concept of ICTL Cycle, and Cycle Len
 For the same reasons explained in Section~\ref{sec:squirrel_implementation}, Go programming is chosen to implement ICTL. Similarly, it uses a buffer pool for memory management. ICTL is implemented as a library package that encapsulates details of encoding and decoding behind a simple interface \texttt{ictl.Endpoint}, which represents an ICTL endpoint for encodings and decodings. An object of \texttt{ictl.Endpoint} can be created using a configuration object that specifies the behaviors of ICTL algorithm, and the endpoint has methods for encoding and decoding messages. Each of such methods accepts a \texttt{context} parameter, which is used to differentiate different stream of data. In case of DSRC, a combination of MAC address and PSID is a good choice of \texttt{context}. The endpoint allocates one encoder/decoder for each context, and maintains the separation between different data streams.
 
 \subsection{Trace File Playback}
+\label{sec:truck_playback}
 
 The squirrel emulator was designed to facilitate running real-world code. Everything above MAC layer assumes a real wireless device, and process real network frames. This idea here is to develop research projects that can be not only reproducible, but also more directly beneficial to real-world applications. With the same spirit, we acquired real-world platooning data traces, and use them to study the ICTL algorithm, and make performance improvements. To utilize such trace files, a software component is written, called \texttt{truck-playback}, to replay events from one vehicle.
 
@@ -648,7 +645,7 @@ Some mathematical analysis are done to further study this problem. Table~\ref{ta
       $n_a$    & The number messages delivered at application layer during entire transmission \\
       $n_c$ & The number of messages delivered at application layer within one ICTL Cycle \\ 
       $m$      & CL \\
-      $p_n$    & The probability that a frame is lost below ICTL, e.g., MAC layer \\
+      $p_n$    & The probability that an ICTL frame is delivered, i.e., not lost in lower layers \\
       $NDR$    & NDR \\
       $ADR$    & ADR \\
       \hline
@@ -837,11 +834,53 @@ In addition, Adaptive ICTL also postpone the point when congestion happens, thus
 
 \section{ICTL Running Time Benchmarks}
 
+Adaptive ICTL is a fairly complicated process compared to simple networking operations such as sending a packet. To study the processing efficiency of adaptive ICTL, some benchmarks are done against adaptive ICTL to study running time of the encoding process, using Go's built-in benchmark framework, on a laptop computer with Intel(R) Core(TM) i5-5287U processor.
+
+In the benchmarks, adaptive ICTL is configured to either automatically select compression algorithm by iterating through 4 algorithms, or always use \texttt{flate}. The data trace is composed messages that are either completely random, or always identical to each other. With random data, differential data is large, thus it takes more time for adaptive ICTL to compress the payload. With identical data, differential data is full of zeros, and it takes significantly less time for adaptive ICTL to compress the payload. Thus, identical data determins the lower bound of running time of adaptive ICTL, while random data trace is a good estimate of upper bound.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|c|r|r|}
+      \hline
+      Unit: ns/op & Random & Identical \\ \hline
+      Iterating   & 2,434,206 & 1,232,683 \\ \hline
+      Flate       & 701,801 & 305,154 \\ \hline
+    \end{tabular}
+    \caption{\label{tab:ictl_time_256}Adaptive ICTL Running Time Benchmarks: 256-byte messages}
+  \end{center}
+\end{table}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|c|r|r|}
+      \hline
+      Unit: ns/op & Random & Identical \\ \hline
+      Iterating   & 2,942,048 & 1,318,164 \\ \hline
+      Flate       & 882,314 & 321,307 \\ \hline
+    \end{tabular}
+    \caption{\label{tab:ictl_time_1024}Adaptive ICTL Running Time Benchmarks: 1024-byte messages}
+  \end{center}
+\end{table}
+
+Table~\ref{tab:ictl_time_256} shows running time of encoding operations of 4 configurations, for data traces composed of 256-byte messages. With fixed \texttt{flate} compression, the running time per operation is about 0.3 ms for identical data, and around 0.7 ms for random data.
+
+Table~\ref{tab:ictl_time_1024} shows results for 1024-byte messages. Identical data and random data takes about 0.3 ms and 0.8 ms to encode respectively. With larger message size, running time of each operation is slightly larger, but not significantly larger. This suggests that larger message size does not affect adaptive ICTL encoding time significantly.
+
+This suggests that, users of adaptive ICTL should be prepared that adaptive ICTL can cause up to 1 ms delay. 1 ms is comparable to the time it takes for networking stack on a device to send a network packet. Depending how critical 1 ms is to the application, and how efficient the rest of networking stack is, this can be significant. Implementing other operations asynchronously can help improve overall system response time, whereas the running time of ICTL is a hard limit. Thus, whether or not to use ICTL is a matter of trade-offs between low latency and low bandwidth consumption.
+
 \section{Conclusion}
+
+This chapter introduces an ICTL algorithm as a way to reduce bandwidth consumption in DSRC applications. The ICTL algorithm is implemented and tested on the squirrel emulator. Behaviors of ICTL under different scenarios and configurations have been studied. Guided by the findings, an even lower bandwidth consuming algirhthm, adaptive ICTL, is designed.
+
+By using adaptive ICTL, bandwidth consumption of the platooning data trace used in this study is redyced by over 50\% in size. Consequently, in congested networking environment, adaptive ICTL delivers the highest ADR in all tested transmitted strategies. Thus, Adaptive ICTL helps postpone the point when congestion control algorithms have to be activated, which indirectly improves the service reliability of DSRC networking in vehicular environments.
+
+The running time of adaptive ICTL's encoding opertaion is less than 1 ms, but greater than 0.3 ms. Depending on how sensitive the application is to latencies, this may or may not be significant. So whether or not to use ICTL involves evaluating trade-offs between low latency and low bandwidth consumption.
 
 \chapter{Summary}
 
+TODO
 
+\chapter{Future Work}
 
 
 
