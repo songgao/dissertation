@@ -6,4 +6,4 @@ RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compre
 DST_HOST=song
 DST_DIR=/home/core/dissertation
 
-rsync $RSYNC_FLAGS -L chart-viewer $DST_HOST:$DST_DIR/
+rsync $RSYNC_FLAGS -L slides $DST_HOST:$DST_DIR/
