@@ -249,11 +249,11 @@ An example data flow is also shown in Figure~\ref{fig:squirrel_arch}, where emul
 
 \texttt{squirrel-master} has two important components: a mobility manager and a wireless model. Both of them are configurable through a plug-in system. The two components share a position manager, which is an internal component in Squirrel that keeps track of position of each emulated node. The mobility manager emulates the mobility of all emulated nodes. It interfaces with the position manager and updates positions of emulated nodes periodically. The position information is used by the wireless model to determine whether a frame should be delivered to its destination.
 
-During the development and testing of Squirrel, several simplified mobility managers and wireless models are developed. For example, a static mobility manager allows pre-definition of a position for each node. A pass-through wireless model instructs Squirrel to deliver each frame. These models are useful for testing the effectiveness and capability of Squirrel, but do not provide realistic throughput and packet loss for application in emulation.
+During the development and testing of Squirrel, several simplified mobility managers and wireless models are developed. For example, a static mobility manager allows pre-definition of a position for each node. A PassThrough wireless model instructs Squirrel to deliver each frame. These models are useful for testing the effectiveness and capability of Squirrel, but do not provide realistic throughput and packet loss for application in emulation.
 
 The rest of this section is focused on realistic models that are used in this study. First, a CSMA/CA wireless model is designed to emulate the CSMA/CA algorithm used in real-world IEEE 802.11 networks. Second, a mobility manager that supports updating positions from different processes is designed.
 
-\subsection{CSMC/CA Model}
+\subsection{CSMA/CA Model}
 \label{sec:squirrel_csmaca}
 
 In Ethernet, the collision domain is bounded to well controlled hardware components such as Ethernet wires and hubs. In wireless networking, however, since electro-magnetic wave propagates freely, the collision domain is much larger and the bounds are less pronounced. This introduces some challenges specific for wireless networking. A typical one is the hidden node problem, where a node transmitting to a second node may not see other nodes that are in interference range of the second node but not the first one, causing collision at second node. This is the motivation that lead to the design of collision avoidance in CSMA/CA algorithm that is widely used in IEEE 802.11 networks.
@@ -316,6 +316,8 @@ where $u(0\le u\le 1)$is the usage ratio of the bucket, $d$ is the distance betw
 
 Putting it together, when a node transmits a unicast data frame, Squirrel's CSMA/CA model first tries to increment the bucket of the source node. If successful, it tries to increment all buckets within the interference range of the source node, based on Equation~\ref{eq:csmaca_squirrel_send_data}. If the destination bucket does not overflow, the probability function $P_{propagation}$ as defined in Equation~\ref{eq:propagation_prob} is applied. If the frame survives the probability function, the frame is delivered to the destination node. Any failure in this process results in retransmission, until the maximum number of transmission is reached. If the data frame is delivered to the destination node, the model starts the ACK process in which the destination node sends an ACK back to source node. This is a similar process, which includes incrementing buckets of nearby nodes, as well as the probability function. Although at this point, the data frame is for sure delivered to the destination node, the ACK can still be lost, in which case a retransmission still happens. Broadcast frames are handled in the same way, except that the model tries to deliver the data frame to all nodes within transmission range, and that there is not ACK process.
 
+The CSMA/CA has configurable parameters, such as emulated MAC layer data rate, transmission range, and interference range. In addition, since different IEEE 802.11 protocol has different timing parameters, such as DIFS, SIFS, and aSlotTime, the CSMA/CA model has a configuration field for MAC layer protocol. The CSMA/CA model has a pre-defined parameter set for each supported protocol, which configures corresponding timing parameters for the model. An example of such parameter set is \texttt{802.11p10}, or \texttt{OFDM10}, which is configured to have 13 ms aSlotTime, 32 ms SIFS, and CW from 15 to 1023.
+
 
 \subsection{RPC Updated Mobility Manager}
 \label{sec:rpc_mobility_manager}
@@ -361,7 +363,7 @@ A simple networking testing tool, \texttt{iperf}, is used as testing target. UDP
   \end{center}
 \end{figure}
 
-Figure~\ref{fig:squirrel_preliminary} shows a stacked area plot of the UDP throughput result from Android tablets and Squirrel. They both show that, in the first 10 seconds the first pair (node1 to node2) gets about 33 Mbps throughput. After the second pair (node3 to node4) starts at 10th second, the first pair's throughput drops to below 20 Mbps, while the second pair gets roughly the same level of throughput.
+Figure~\ref{fig:squirrel_preliminary}\footnote{Plots in this dissertation are generated with Highchart JS (\url{https://http://www.highcharts.com/}) provided by Highsoft AS. Highchart JS is not free for commercial and Governmental use. The use of Highchart JS in this dissertation is under Creative Commons Attribution-NonCommercial 3.0 License.} shows a stacked area plot of the UDP throughput result from Android tablets and Squirrel. They both show that, in the first 10 seconds the first pair (node1 to node2) gets about 33 Mbps throughput. After the second pair (node3 to node4) starts at 10th second, the first pair's throughput drops to below 20 Mbps, while the second pair gets roughly the same level of throughput.
 
 The general trends match very well between Android and Squirrel configuration and show the expected results. Squirrel is able to emulate interference based on positions of emulated nodes even though the traffic is between two different pairs that are completely independent. The difference is that, there seems to be more randomness in the Android test. This is likely due to networking channel condition variations due to external factors such as other devices beyond our control using 2.4 GHz, or even a microwave oven next door heating macaroni and cheese.
 
@@ -613,7 +615,7 @@ CoreOS uses \texttt{systemd} as its init system. To manage massive \texttt{squir
 A major goal that ICTL tries to achieve by reducing bandwidth consumption is to improve delivery ratio when network utilization is high. As a result, to study and improve ICTL, it is necessary to create congestion in the emulation environment. Section~\ref{sec:problem_congestion} uses 400 vehicles in the analysis. However, on a single workstation, it is hard to emulate 400 nodes in real time. The data trace files we acquired use 50 Hz DSRC message rate, which is higher than 20 Hz in the analysis, which already makes it easier to trigger congestion. In addition, several methods are used to help trigger congestion with less than 15 emulated nodes.
 
 \begin{enumerate}
-  \item 6 Mbps (instead of 3 Mbps) is used as MAC layer data rate setting in Squirrel's CSMA/CA model.
+  \item 3 Mbps (instead of 6 Mbps) is used as the MAC layer data rate setting in Squirrel's CSMA/CA model.
   \item Each message is replicated 12 times, in 12 separate WSMs, before being encapsulated and sent as a LLC layer frame. This increases frame size, in case of original data trace, from 117 bytes to 1250 bytes.
 \end{enumerate}
 
@@ -890,6 +892,22 @@ By using adaptive ICTL, bandwidth consumption of the platooning data trace used 
 
 The running time of adaptive ICTL's encoding operation is less than 1 ms, but greater than 0.3 ms. Depending on how sensitive the application is to latencies, this may or may not be significant.
 
+\chapter{Summary}
+
+In context of a real-world application, vehicle platooning, this dissertation strives to improve efficiency and reliability of vehicular networking, using an emulated experimental approach.
+
+To start with, an emulation infrastructure is designed and implemented to provide a scalable yet realistic experimental platform. As a general framework for wireless networking emulation, Squirrel is designed to use as much real-world software components as possible. Conceptually, it replaces the wireless hardware, device driver's Hardware Abstract Layer (HAL) and the IEEE 802.11 kernel module, and provides upper layers with interfaces that are same as on real wireless devices. Consequently, testing targets on Squirrel are real software components that are deployable to real-world devices. Squirrel is configurable through a plug-in system. This allows different wireless models and mobility managers to be developed for Squirrel.
+
+Studies in this dissertation use a CSMA/CA model that emulates the behaviors of IEEE 802.11 networks. It uses a leaky bucket to track channel condition in vicinity of each node. As an event happens near a node, the corresponding leaky bucket increases by the number of nanoseconds the event takes to finish. All leaky buckets leak at the same rate as time, i.e. $1\times 10^9$ per second. With this technique, channel condition is independently tracked for each node, which enables the model to not only shape throughput of traffic, but also reflect interference generated by other transmitting nodes. As a result, channel congestion is properly emulated.
+
+Effectiveness tests are conducted for the CSMA/CA model in Squirrel. It demonstrates that Squirrel effectively reflect network congestion in the test, and show a similar trend of iperf UDP throughput compared to the same test conducted on Android devices. In addition, Squirrel's throughput is also tested using the PassThrough network model. On a workstation with a 6-core CPU, Squirrel achieves 1200 Mbps throughput in total.
+
+Second, an interframe compression method, ICTL, is designed and implemented. Unlike traditional compression methods where payload of each frame is compressed directly, ICTL compresses the difference between consecutive frames. The interframe compression design is inspired by video compression algorithms, but is adapted to be more suitable for vehicular networking. Two message types, KF and DF, are introduced by ICTL. A KF encodes application data directly, while DF encodes the difference between the application data and a previously transmitted KF. In a general transmission sequence, a KF is followed by a number of DFs. Since a DF is much smaller than a KF, this reduces average bandwidth consumption.
+
+Behaviors of ICTL are studied under different configurations and scenarios, using analytical method as well as experimental method on Squirrel. Based on mathematical analysis, it is speculated that reducing bandwidth consumption should help increase ADR as well. With this in mind, an adaptive ICTL is designed and implemented. Unlike in basic ICTL where a fixed CL is used, adaptive ICTL goes through a process for each frame to determine whether it should be a KF or a DF should be send, based on average frame size within current ICTL Cycle.
+
+The adaptive ICTL was tested on Squirrel, under different network utilization level. It has been shown that adaptive ICTL achieves over 50\% in reduction of bandwidth consumption, and maintains relative high ADR when network is congested. The adaptive ICTL algorithm achieves the lowest bandwidth consumption and highest ADR among all tested ICTL and tradition compression algorithms, in all test cases.
+
 \chapter{Future Work}
 
 As an extension of this work, multi-hop scenarios can be studied. This chapter describe a general idea of using Multi-Point Relays (MPRs\nomenclature{MPR}{Multi-Point Relay}) in multi-hop vehicular networks.
@@ -933,6 +951,8 @@ The author truly believes that research should be driven by real-world problems,
   \includegraphics[width=.8\textwidth]{figures/postface.jpg}
   \end{center}
 \end{figure}
+
+
 
 \end{document}
 
