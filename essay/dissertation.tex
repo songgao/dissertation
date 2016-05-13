@@ -382,7 +382,7 @@ With a single pair of sender/receiver, UDP throughput achieves around 480 Mbps. 
 
 With more workstations handling \texttt{squirrel-worker} nodes and more number of cores on the workstations, the throughput can further increase. In other words, the throughput capability of Squirrel is mainly bounded by hardware resources. For the purposes in this study, a single workstation is able to provide enough throughput for the emulation.
 
-\chapter{Inter-frame Compression Transmission Layer}
+\chapter{Interframe Compression Transmission Layer}
 
 \section{Problem Statement}
 \label{sec:problem_congestion}
@@ -570,7 +570,7 @@ For analysis and experimental purposes, the concept of ICTL Cycle, and Cycle Len
 
 \subsection{Implementation}
 
-For the same reasons explained in Section~\ref{sec:squirrel_implementation}, Go programming is chosen to implement ICTL. Similarly, it uses a buffer pool for memory management. ICTL is implemented as a library package that encapsulates details of encoding and decoding behind a simple interface \texttt{ictl.Endpoint}, which represents an ICTL endpoint for encodings and decodings. An object of \texttt{ictl.Endpoint} can be created using a configuration object that specifies the behaviors of ICTL algorithm. The endpoint has methods for encoding and decoding messages. Each of such methods accepts a \texttt{context} parameter, which is used to differentiate different streams of data. In case of DSRC, a combination of MAC address and PSID is a good choice of \texttt{context}. The endpoint allocates one encoder/decoder for each context, and maintains the separation between different data streams.
+For the same reasons explained in Section~\ref{sec:squirrel_implementation}, Go programming language is chosen to implement ICTL. Similarly, it uses a buffer pool for memory management. ICTL is implemented as a library package that encapsulates details of encoding and decoding behind a simple interface \texttt{ictl.Endpoint}, which represents an ICTL endpoint for encodings and decodings. An object of \texttt{ictl.Endpoint} can be created using a configuration object that specifies the behaviors of ICTL algorithm. The endpoint has methods for encoding and decoding messages. Each of such methods accepts a \texttt{context} parameter, which is used to differentiate different streams of data. In case of DSRC, a combination of MAC address and PSID is a good choice of \texttt{context}. The endpoint allocates one encoder/decoder for each context, and maintains the separation between different data streams.
 
 \subsection{Trace File Playback}
 \label{sec:truck_playback}
@@ -633,7 +633,7 @@ A simple test is run in the emulation platform to demonstrated the effectiveness
 
 In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over original data trace uses $\ge$ 59 KB/s. With ICTL, the demanded bandwidth is always below 40 KB/s, yielding more than 30\% bandwidth savings.
 
-The test demonstrates the effectiveness of the basic idea of ICTL. Following sections in this chapters studies behavior and performance attributes of ICTL, and describe ways to optimize the algorithm for bandwidth and delivery ratio.
+The test demonstrates the effectiveness of the basic idea of ICTL. Following sections in this chapter study behavior and performance attributes of ICTL, and describe ways to optimize the algorithm for bandwidth and delivery ratio.
 
 
 \section{Performance Studies}
@@ -778,7 +778,7 @@ In this study, ICTL uses a metric of average frame size of the ICTL Cycle up to 
   \label{eq:mu_cycle}
 \end{equation}
 
-, where $S$ is the size of corresponding frame, and $i$ is the frame number within the ICTL Cycle. $i$ is greater than or equal to 2, because the first frame in an ICTL Cycle is always a KF.
+where $S$ is the size of corresponding frame, and $i$ is the frame number within the ICTL Cycle. $i$ is greater than or equal to 2, because the first frame in an ICTL Cycle is always a KF.
 
 $\mu_{cycle}^x$ is the key metric used by ICTL to determine whether a DF should be used for $x$th frame in the ICTL Cycle. First of all, ICTL keeps track of the immediately previous calculated metric, $\mu_{cycle}^{x-1}$. When ICTL transmits a frame $x$, it first encodes a DF, and inspects its size $S_{DF}^x$, with which $\hat{\mu}_{cycle}^x$ is calculated according to Equation~\ref{eq:mu_cycle}. If $\hat{\mu}_{cycle}^x < \mu_{cycle}^{x-1}$, it implies that, by sending another DF in this ICTL Cycle, the average frame size within the cycle can be further reduced, so ICTL should send a DF for this frame. In this case, $\hat{\mu}_{cycle}^x$ becomes $\mu_{cycle}^x$, and the DF is sent. Otherwise, a KF is sent, and a new ICTL Cycle is started.
 
