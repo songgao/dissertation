@@ -44,7 +44,9 @@ const series = ms.map((m) => ({
 $(function () {
   $('#container').highcharts({
     "chart": {
-      "type": "spline"
+      "type": "spline",
+      "zoomType": "x",
+      "margin": [null],
     },
     "title": {
       "text": "ADR as Function of NDR and CL"
