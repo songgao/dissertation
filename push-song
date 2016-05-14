@@ -3,7 +3,7 @@
 cd $(dirname $0)
 
 RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compress"
-DST_HOST=song
-DST_DIR=/home/core/dissertation
+DST_HOST=song.gao.io
+DST_DIR=/home/song/dissertation
 
 rsync $RSYNC_FLAGS -L slides $DST_HOST:$DST_DIR/
