@@ -6,4 +6,4 @@ RSYNC_FLAGS="--times --checksum --human-readable --progress --recursive --compre
 DST_HOST=song.gao.io
 DST_DIR=/home/song/dissertation
 
-rsync $RSYNC_FLAGS -L slides $DST_HOST:$DST_DIR/
+rsync $RSYNC_FLAGS -L web/charts $DST_HOST:$DST_DIR/
