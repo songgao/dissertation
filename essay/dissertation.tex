@@ -149,7 +149,9 @@ WSMP, defined in IEEE 1609.3 \cite{ieee16093}, is the networking service in DSRC
 On top of the WSMP layer is the Message Sub-layer, which directly provides support to applications. An important standard in this layer is the SAE J2735 DSRC Message Set \cite{sae2016j2735}. J2735 defines many message types that vehicular applications can utilize. The messages are encoded using ASN.1 format and always transmitted with WSMP. Each message is defined as a collection of constituent data structures called data elements and data frames. A data element is the most basic data structure in the J2735 standard. A data frame has a more complex data structure, and is composed of one or more data elements or other data frames. \cite{kenney2011} These data structures carry various information related to vehicular environment, from geometries of vehicle body to the dynamics of a running vehicle.
 
 \section{Vehicle Platooning}
-Vehicle platooning is one of safety applications that DSRC enables. In vehicle platooning, Cooperative Adaptive Cruise Control (CACC\nomenclature{CACC}{Cooperative Adaptive Cruise Control}) plays an important role. CACC is based on Adaptive Cruise Control (ACC\nomenclature{ACC}{Adaptive Cruise Control}, also known as Autonomous/Active Cruise Control), which in addition to maintaining speed as in normal Cruise Control, can adjust vehicle speed based on distance between the vehicle and other vehicles in front of it, i.e., headway distances. The distance detection relies on radar sensors mounted at the front of the vehicle. Due to the latency from the time when a front vehicle brakes to the time when the ACC enabled vehicle reacts to the decreased headway, safe following distance is set to be quite high in ACC systems. In CACC, however, headway distance can be further decreased without introducing extra safety issues. As shown in Figure~\ref{fig:brake}, this is achieved by a signaling mechanism that results in shorter reaction time when then front vehicle is braking. In this mechanism, as soon as the front vehicle's driver hit the brake pedal, even before the front vehicle starts to decelerate, the braking signal, along with other information, is broadcast through DSRC, making the vehicle that is following closely aware of the situation and brake in advance. Since this mechanism does not completely rely on actual headway distance change and sensor accuracy, the headway distance can be further reduced, to a point where the aerodynamic context can change significantly.
+\label{sec:vehicle_platooning}
+
+Vehicle platooning is one of safety applications that DSRC enables. In vehicle platooning, Cooperative Adaptive Cruise Control (CACC\nomenclature{CACC}{Cooperative Adaptive Cruise Control}) plays an important role. CACC is based on Adaptive Cruise Control (ACC\nomenclature{ACC}{Adaptive Cruise Control}, also known as Autonomous/Active Cruise Control), which in addition to maintaining speed as in normal Cruise Control, can adjust vehicle speed based on distance between the vehicle and other vehicles in front of it, i.e., headway distances. The distance detection relies on radar sensors mounted at the front of the vehicle. Due to the latency from the time when a front vehicle brakes to the time when the ACC enabled vehicle reacts to the decreased headway, safe following distance is set to be quite high in ACC systems.
 
 \begin{figure}[htb]
   \begin{center}
@@ -158,17 +160,42 @@ Vehicle platooning is one of safety applications that DSRC enables. In vehicle p
   \end{center}
 \end{figure}
 
+In CACC, however, headway distance can be further decreased without introducing extra safety issues. As shown in Figure~\ref{fig:brake}, this is achieved by a signaling mechanism that results in shorter reaction time when then front vehicle is braking. In this mechanism, as soon as the front vehicle's driver hit the brake pedal, even before the front vehicle starts to decelerate, the braking signal, along with other information, is broadcast through DSRC, making the vehicle that is following closely aware of the situation and brake in advance. Since this mechanism does not completely rely on actual headway distance change and sensor accuracy, the headway distance can be further reduced, to a point where the aerodynamic context can change significantly.
+
+\subsection{Real-world Platooning Experiment}
+
+In a real-world deployment, antenna's mounting position matters because vehicle body can block line-of-sight and affects wireless propagation. The vehicle body can block the line-of-sight between the vehicle's antenna and vehicles next to it. The problem becomes greater for large size vehicles, such as semi-trailer trucks. To solve this problem, many researchers and engineers choose to mount two DSRC antennas on the vehicle \cite{Bergenhem20121222,peloton}. Many DSRC device vendors provide devices with two antenna interfaces \cite{aradasystems,denso,unex}.
+
+A straightforward and easy-to-implement way to make the communication more reliably with dual-antenna design is to replicate each message on both antennas. In other words, the DSRC stack is configured to use both antennas alternately and each message is sent twice through DSRC. This way, as long as one side of antennas makes it through, the message can be delivered. It improves reliability but uses twice as much bandwidth, causing more channel congestion.
+
+\begin{figure*}[htb]
+  \begin{subfigure}[h]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{figures/platooning-driver.JPG}
+  \end{subfigure}
+  \begin{subfigure}[h]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{figures/platooning.JPG}
+  \end{subfigure}
+  \caption{\label{fig:platooning}Platooning experiment conducted on the test track at National Center for Asphalt Technology}
+\end{figure*}
+
+Figure~\ref{fig:platooning}\footnote{Photos courtesy of Dr. Alvin Lim} shows a platooning experiment conducted on a test track at National Center for Asphalt Technology (NCAT\nomenclature{NCAT}{National Center for Asphalt Technology}). The platoon consists of two semi-trailer trucks. On each truck, a pair of DSRC antennas are mounted on each side of the tractor, located near the back panel of the tractor. The upper ones are used by one of the two DSRC radios, for transmitting messages necessary for platooning control. Since these are safety messages, this DSRC radio runs the WSMP branch of the DSRC protocol suite. The lower two antennas are used by the other DSRC radio, for sending a video footage from front vehicle to the rear one, for driver comfortability. This DSRC radio runs an IP stack, essentially behave like a router between the electronic systems in the truck and the other truck. The antenna setting is shown in Figure~\ref{fig:dsrc_test_trucks}. Since IEEE 1609.4 needs time synchronization, time is acquired from GPS satellites through a GPS antenna that is mounted on left side of the truck and is connected to the DSRC radio.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=.6\textwidth]{figures/dsrc-test-trucks.jpg}
+    \caption{\label{fig:dsrc_test_trucks}Left side of a truck with DSRC antennas and a GPS antenna}
+  \end{center}
+\end{figure}
+
+The DSRC radios and various sensors installed on the trucks allow the trucks to be virtually connected. With DSRC messages transmitted at 50 Hz, the system can achieve less than 2 meters following distance, at speed of 72 kilometer per hour. This corresponds to a time interval of 0.1 second. Compared to commercial ACC solutions, for example, the 2016 Audi S7 \cite{audi}, where the most aggressive setting is a time interval of 1 second, CACC reduces the following distance by an order of magnitude.
+
 Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational,fhwa2015report}, and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in trucking industry, the single largest operating cost is diesel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
 
 \section{Real-world Performance Attributes of DSRC in Platooning Scenarios}
 
 \label{sec:background_realworld_performance}
 
-In a real-world deployment, antenna's mounting position matters because vehicle body can block line-of-sight and affects wireless propagation. The vehicle body can block the line-of-sight between the vehicle's antenna and vehicles next to it. The problem becomes greater for large size vehicles, such as semi-trailer trucks. To solve this problem, many researchers and engineers choose to mount two DSRC antennas on the vehicle \cite{Bergenhem20121222,peloton}. Many DSRC device vendors provide devices with two antenna interfaces \cite{aradasystems,denso,unex}.
-
-A straightforward and easy-to-implement way to make the communication more reliably with dual-antenna design is to replicate each message on both antennas. In other words, the DSRC stack is configured to use both antennas alternately and each message is sent twice through DSRC. This way, as long as one side of antennas makes it through, the message can be delivered. It improves reliability but uses twice as much bandwidth, causing more channel congestion.
-
-To obtain better understanding on how well DSRC can support platooning applications, we conducted an experimental study in which we conducted extensive real-world DSRC tests using two semi-trailer trucks\cite{songDSRC2016}, primarily focusing on delivery ratio of broadcast messages under various circumstances and with different parameters. Tests conducted in this study included a set of dynamic tests with two trucks running on a 1.7-mile test track as a general case and a few sets of static tests for studying performance in specific scenarios, such as when the road was not horizontal or when the front vehicle was turning.
+To obtain better understanding on how well DSRC can support platooning applications, we conducted an experimental study\cite{songDSRC2016} primarily focusing on delivery ratio of broadcast messages under various circumstances and with different parameters. In the study, we conducted extensive real-world DSRC tests using the same devices and settings as the platooning experiment described in Section~\ref{sec:vehicle_platooning}. The tests included a set of dynamic tests with two trucks running on the test track at NCAT as a general case and a few sets of static tests for studying performance in specific scenarios, such as when the road was not horizontal or when the front vehicle was turning.
 
 In the study we used three antenna operating mode: alternate, left, and right. For alternate mode, we introduced pairwise delivery ratio. It is similar to the normal delivery ratio, except that it represents the ratio of the messages delivered from either of a pair of antennas to the total pairs of messages sent. In pairwise delivery ratio, delivery of any one of a pair of duplicate messages indicates successful transmission of the pair. 
 
@@ -218,14 +245,14 @@ In this study, an IEEE 802.11 emulation framework called Squirrel is developed, 
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=.7\textwidth]{figures/squirrelConcept.pdf}
-    \caption{\label{fig:squirrel_concept}Layer Concept of Squirrel}
+    \caption{\label{fig:squirrel_concept}Layer concept of Squirrel}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=.7\textwidth]{figures/squirrelDSRC.pdf}
-    \caption{\label{fig:squirrel_dsrc}Squirrel in DSRC Context}
+    \caption{\label{fig:squirrel_dsrc}Squirrel in DSRC context}
   \end{center}
 \end{figure}
 
@@ -235,7 +262,7 @@ Squirrel uses a multi-tier architecture, where a master component (\texttt{squir
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth]{figures/squirrelArch.pdf}
-    \caption{\label{fig:squirrel_arch}Squirrel Architecture and an Example Data Flow}
+    \caption{\label{fig:squirrel_arch}Squirrel architecture and an example data flow}
   \end{center}
 \end{figure}
 
@@ -261,7 +288,7 @@ In Ethernet, the collision domain is bounded to well controlled hardware compone
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth]{figures/csmaca.pdf}
-    \caption{\label{fig:csmaca}A CSMA/CA Algorithm Timeline of Sending a Data Frame}
+    \caption{\label{fig:csmaca}A CSMA/CA algorithm timeline of sending a data frame}
   \end{center}
 \end{figure}
 
@@ -353,13 +380,13 @@ A simple networking testing tool, \texttt{iperf}, is used as testing target. UDP
   \begin{center}
     \begin{subfigure}[h]{\textwidth}
       \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/effectiveness_android.pdf}}
-      \caption{\label{fig:squirrel_preliminary_android}Real Android UDP Throughput}
+      \caption{\label{fig:squirrel_preliminary_android}Real Android UDP throughput}
     \end{subfigure}
     \begin{subfigure}[h]{\textwidth}
       \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/effectiveness_squirrel.pdf}}
-      \caption{\label{fig:squirrel_preliminary_squirrel}Squirrel UDP Throughput}
+      \caption{\label{fig:squirrel_preliminary_squirrel}Squirrel UDP throughput}
     \end{subfigure}
-    \caption{\label{fig:squirrel_preliminary}Squirrel CSMA/CA Model Testing: UDP Throughput in stacked area plot for Android v.s. Squirrel}
+    \caption{\label{fig:squirrel_preliminary}Squirrel CSMA/CA model testing: UDP throughput in stacked area plot for Android v.s. Squirrel}
   \end{center}
 \end{figure}
 
@@ -377,7 +404,7 @@ With a single pair of sender/receiver, UDP throughput achieves around 480 Mbps. 
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{figures/results/passthrough.pdf}
-  \caption{\label{fig:passthrough}Stacked Throughput using PassThrough Wireless Model}
+  \caption{\label{fig:passthrough}Stacked throughput using PassThrough wireless model}
 \end{figure}
 
 With more workstations handling \texttt{squirrel-worker} nodes and more number of cores on the workstations, the throughput can further increase. In other words, the throughput capability of Squirrel is mainly bounded by hardware resources. For the purposes in this study, a single workstation is able to provide enough throughput for the emulation.
@@ -593,7 +620,7 @@ The \texttt{truck-playback} uses a WSMP implementation written in Go, which uses
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=.6\textwidth]{figures/playback_arch.pdf}
-    \caption{\label{fig:playback_arch}\texttt{truck-playback} as DSRC Application}
+    \caption{\label{fig:playback_arch}\texttt{truck-playback} as DSRC application}
   \end{center}
 \end{figure}
 
@@ -628,7 +655,7 @@ A simple test is conducted in the emulation platform to demonstrated the effecti
 
 \begin{figure}[h]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/first_glance.pdf}}
-  \caption{\label{fig:first_glance}Bandwidth test: Original, Traditional Compression, and ICTL }
+  \caption{\label{fig:first_glance}Bandwidth test: original, traditional compression, and ICTL }
 \end{figure}
 
 In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over the original data trace uses $\ge$ 59 KB/s. With ICTL, the required bandwidth is always below 40 KB/s, yielding more than 30\% bandwidth savings.
