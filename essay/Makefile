@@ -4,7 +4,7 @@ FN=dissertation
 
 default: $(FN).pdf clean-intermediate
 
-$(FN).pdf: Makefile $(FN).tex *.sty bib.bib figures *.lst
+$(FN).pdf: Makefile $(FN).tex *.sty bib.bib figures *.lst acknowledgments.tex
 	pdflatex $(FN).tex
 	makeindex $(FN).nlo -s nomencl.ist -o $(FN).nls
 	bibtex $(FN)
