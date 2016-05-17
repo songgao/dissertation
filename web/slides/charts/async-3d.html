@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+
+    <script type="text/javascript" src="./lib/jquery-1.9.1.js"></script>
+
+    <style type="text/css">
+
+    </style>
+
+    <title></title>
+
+
+  </head>
+
+  <body>
+    <script src="./lib/highcharts.js"></script>
+    <script src="./lib/highcharts-3d.js"></script>
+
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+    <script type='text/javascript'>//<![CDATA[
+
+'use strict'
+
+
+const getURLParameter = (sParam) => {
+  const sURLVariables = window.location.search.substring(1).split('&');
+  for (let i = 0; i < sURLVariables.length; i++) {
+    const sParameterName = sURLVariables[i].split('=');
+    if (sParameterName[0] == sParam) {
+      return sParameterName[1];
+    }
+  }
+};
+
+const chartURL = getURLParameter('chart');
+$.getJSON('./' + chartURL).then( (options) => {
+  $(function () {
+    // shift all data series to start at the same time for easy comparison
+    $.extend(true, options, { title: { text: null } });
+    $.extend(true, options, { chart: { margin: [null] } });
+
+    const chart = new Highcharts.Chart('container', options);
+    $(chart.container).bind('mousedown.hc touchstart.hc', (eStart) => {
+      eStart = chart.pointer.normalize(eStart);
+
+      let posX = eStart.pageX,
+      posY = eStart.pageY,
+      alpha = chart.options.chart.options3d.alpha,
+      beta = chart.options.chart.options3d.beta,
+      newAlpha,
+      newBeta,
+      sensitivity = 5; // lower is more sensitive
+
+      $(document).bind({
+        'mousemove.hc touchdrag.hc': (e) => {
+          // Run beta
+          newBeta = beta + (posX - e.pageX) / sensitivity;
+          chart.options.chart.options3d.beta = newBeta;
+
+          // Run alpha
+          newAlpha = alpha + (e.pageY - posY) / sensitivity;
+          chart.options.chart.options3d.alpha = newAlpha;
+
+          chart.redraw(false);
+        },
+        'mouseup touchend': () => {
+          $(document).unbind('.hc');
+        }
+      });
+    });
+  });
+}).fail(err => {
+  console.error(err);
+});
+
+//]]> 
+
+    </script>
+  </body>
+
+</html>
+

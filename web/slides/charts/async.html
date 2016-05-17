@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+
+    <script type="text/javascript" src="./lib/jquery-1.9.1.js"></script>
+
+    <style type="text/css">
+
+    </style>
+
+    <title></title>
+
+
+  </head>
+
+  <body>
+    <script src="./lib/highcharts.js"></script>
+
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+    <script type='text/javascript'>//<![CDATA[
+
+'use strict'
+
+
+const getURLParameter = (sParam) => {
+  const sURLVariables = window.location.search.substring(1).split('&');
+  for (let i = 0; i < sURLVariables.length; i++) {
+    const sParameterName = sURLVariables[i].split('=');
+    if (sParameterName[0] == sParam) {
+      return sParameterName[1];
+    }
+  }
+};
+
+const chartURL = getURLParameter('chart');
+$.getJSON('./' + chartURL).then( (options) => {
+  $(function () {
+    // shift all data series to start at the same time for easy comparison
+    $.extend(true, options, { title: { text: null } });
+    $.extend(true, options, { chart: { margin: [null] } });
+
+    new Highcharts.Chart('container', options);
+  });
+}).fail(err => {
+  console.error(err);
+});
+
+//]]> 
+
+    </script>
+  </body>
+
+</html>
+
