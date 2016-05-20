@@ -30,10 +30,10 @@
 % Put the title, author, and date in. 
 \title{Improving Vehicular Networking Reliability and Efficiency in the Context of Platooning Applications}
 \author{Song Gao} 
-\date{May, 2016} %date of graduation
+\date{Auguest 6, 2016} %date of graduation
 \copyrightyear{2016} %copyright year
 
-\keywords{Dedicated Short Range Communication, Wireless Access in Vehicular Environment, Computer Networks, Vehicular Networking, Wireless Networking, Vehicle Platooning, Emulation, IEEE 802.11, Compression, Bandwidth, Congestion, Reliability}
+\keywords{Dedicated Short Range Communication, Vehicular Networking, Vehicle Platooning, Wireless Emulation, Compression, Congestion}
 
 % Put the Thesis Adviser here. 
 \adviser{Alvin Lim}
@@ -364,6 +364,8 @@ Squirrel has many configurable parameters. For example, the plug-in system allow
 
 Since every frame goes through \texttt{squirrel-master}, it can easily become a bottleneck for the entire emulation infrastructure. Hence, it is important to optimize \texttt{squirrel-master} in a way that it is scalable by deploying it on a machine with more processing power and more simultaneous running threads. With this goal, \texttt{squirrel-master} uses a lock-free design whenever possible. For example, in the CSMA/CA model, the leaky bucket is implemented with \texttt{sync/atomic} package, using atomic operations that do not require a Mutex to guard resources. The position manager uses fine-grain locking mechanism, where accessing thread only blocks when read and write, or write and write happen for the same node's position at the same time. This design makes \texttt{squirrel-master} more parallelization friendly, thus scales better on multi-core systems.
 
+The implementation of Squirrel is open-source and available at \url{https://github.com/squirrel-land/squirrel}.
+
 \section{Tests}
 
 \subsection{Effectiveness Test}
@@ -596,6 +598,8 @@ For analysis and experimental purposes, the concept of ICTL Cycle, and Cycle Len
 \subsection{Implementation}
 
 For the same reasons explained in Section~\ref{sec:squirrel_implementation}, Go programming language is chosen to implement ICTL. Similarly, it uses a buffer pool for memory management. ICTL is implemented as a library package that encapsulates details of encoding and decoding behind a simple interface \texttt{ictl.Endpoint}, which represents an ICTL endpoint for encodings and decodings. An object of \texttt{ictl.Endpoint} can be created using a configuration object that specifies the behaviors of ICTL algorithm. The endpoint has methods for encoding and decoding messages. Each of such methods accepts a \texttt{context} parameter, which is used to differentiate different streams of data. In case of DSRC, a combination of MAC address and PSID is a good choice of \texttt{context}. The endpoint allocates one encoder/decoder for each context, and maintains the separation between different data streams.
+
+The implementation of ICTL is open-source and available at \url{https://github.com/songgao/ictl}.
 
 \subsection{Trace File Playback}
 \label{sec:truck_playback}
@@ -932,6 +936,8 @@ Second, an interframe compression method, ICTL, is designed and implemented. Unl
 Behaviors of ICTL are studied under different configurations and scenarios, using analytical method as well as experimental method on Squirrel. Based on mathematical analysis, it is speculated that reducing bandwidth consumption should help increase ADR as well. With this in mind, an adaptive ICTL is designed and implemented. Unlike in basic ICTL where a fixed CL is used, adaptive ICTL goes through a process for each frame to determine whether it should be a KF or a DF should be send, based on average frame size within current ICTL Cycle.
 
 The adaptive ICTL was tested on Squirrel, under different network utilization level. It has been shown that adaptive ICTL achieves over 50\% in reduction of bandwidth consumption, and maintains relative high ADR when network is congested. The adaptive ICTL algorithm achieves the lowest bandwidth consumption and highest ADR among all tested ICTL and tradition compression algorithms, in all test cases.
+
+In an effort to ensure reproducibility and applicability of the research, the implementation of Squirrel is open-source and available at \url{https://github.com/squirrel-land/squirrel}, and the implementations of ICTL as well as adaptive ICTL are open-source and available at \url{https://github.com/songgao/ictl}.
 
 \chapter{Future Work}
 
