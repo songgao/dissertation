@@ -187,7 +187,7 @@ Figure~\ref{fig:platooning}\footnote{Photos courtesy of Dr. Alvin Lim} shows a p
 
 The DSRC radios and various sensors installed on the trucks allow the trucks to be virtually connected. The system can achieve less than 2 meters following distance, at speed of 72 kilometer per hour. This corresponds to a time interval of 0.1 second. Compared to commercial ACC solutions, for example, the 2016 Audi S7 \cite{audi}, where the most aggressive setting is a time interval of 1 second, CACC reduces the following distance by an order of magnitude.
 
-Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational,fhwa2015report}, and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in trucking industry, the single largest operating cost is diesel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
+Close following distance might not be very appealing to consumer cars, but it brings huge benefits to big commercial vehicles. To be specific, short following distance can reduce air resistance (drag) for the vehicles \cite{watts2015computational,fhwa2015report} and the drag reduction results in fuel saving (up to 11\% in some scenarios \cite{lammert2014effect}). This is of great interest to transportation companies. For example, in the trucking industry, the single largest operating cost is diesel fuel, being 34\% in year 2014 in the US \cite{atri2015analysis}. 11\% fuel saving yields 3.74\% saving of the total operating cost.
 
 \section{Real-world Performance Attributes of DSRC in Platooning Scenarios}
 
@@ -604,7 +604,7 @@ The implementation of ICTL is open-source and available at \url{https://github.c
 \subsection{Trace File Playback}
 \label{sec:truck_playback}
 
-Squirrel was designed to facilitate running real-world code. Everything above MAC layer assumes a real wireless device, and process real network frames. The idea here is to develop research projects that can be not only reproducible, but also more directly beneficial to real-world applications. With the same spirit, we acquired real-world platooning data traces and use them to study the ICTL algorithm to improve performance. To utilize such trace files, a software component is written, called \texttt{truck-playback}, to replay events from one vehicle.
+Squirrel was designed to facilitate running real-world codes. Everything above MAC layer assumes a real wireless device, and process real network frames. The idea here is to develop research projects that can be not only reproducible, but also more directly beneficial to real-world applications. With the same spirit, we acquired real-world platooning data traces and use them to study the ICTL algorithm to improve performance. To utilize such trace files, a software component is written, called \texttt{truck-playback}, to replay events from one vehicle.
 
 The trace files were logged by a prototype platooning application running on two heavy vehicles, while the trucks were being tested in platooning mode on a closed test track. The trace files include many events, such as GPS location, DSRC messages transmission and reception, various events from vehicle's CAN bus, radar measurements, etc.. For the purpose of studying ICTL, two events are relevant:
 
@@ -630,7 +630,7 @@ When \texttt{truck-playback} replays a DSRC transmission event, it logs the repl
 
 \subsection{Deployment}
 
-Squirrel can be deployed on a cluster, where one node runs \texttt{squirrel-master}, and \texttt{squirrel-worker} nodes run on other nodes. In this study, however, the cluster only consists of one physical workstation. The workstation has one Intel(R) Xeon(R) CPU W3680 with 6 cores. The CPU does not have hyper-threading technology, so most six threads (as opposed to 12 threads had it support hyper-threading technology) can run simultaneously on the CPU at any time.
+Squirrel can be deployed on a cluster, where one node runs \texttt{squirrel-master}, and \texttt{squirrel-worker} nodes run on other nodes. In this study, however, the cluster only consists of one physical workstation. The workstation has one Intel(R) Xeon(R) CPU W3680 with 6 cores. The CPU does not have hyper-threading technology, so at most six threads (as opposed to 12 threads had it support hyper-threading technology) can run simultaneously on the CPU at any time.
 
 Due to its lightweight property and scalability, OSLV is chosen to provide proper isolation for different emulated nodes. Specifically, each \texttt{squirrel-worker} node runs in an application container \cite{menage2007adding}. With different kernel namespaces, one isolated complete networking stack is allocated for each \texttt{squirrel-worker} node. There are several open source softwares providing Linux application container runtime, namely Docker, LXC, and Rkt. Each of them provides a set of tools for building container images, running and configuring application containers. In this study, Rkt \cite{rkt} is used. The operating system on the workstation is CoreOS \cite{coreos}, a modern Linux distribution designed specifically for running application containers.
 
@@ -662,7 +662,7 @@ A simple test is conducted in the emulation platform to demonstrated the effecti
 
 In this test, the original data trace uses a constant bandwidth of 62.5 KB/s. Using traditional compression method directly over the original data trace uses $\ge$ 59 KB/s. With ICTL, the required bandwidth is always below 40 KB/s, yielding more than 30\% bandwidth savings.
 
-The test demonstrates the effectiveness of the basic idea of ICTL. The following sections in this chapter study behavior and performance attributes of ICTL and describe ways to optimize the algorithm for bandwidth and delivery ratio.
+The test demonstrates the effectiveness of the basic idea of ICTL. The following sections in this chapter study the behavior and performance attributes of ICTL and describe ways to optimize the algorithm for bandwidth and delivery ratio.
 
 
 \section{Performance Studies}
@@ -753,7 +753,7 @@ ICTL compresses difference between frames, so it uses less bandwidth when frames
   \caption{\label{fig:3d}3D bandwidth graph from two viewing angles}
 \end{figure}
 
-As shown in the figure, ICTL does not require more bandwidth at curved roads. We believe this is because the changes of vehicle status at curved roads are gradual and slow enough to not cause drastic change in DSRC messages. Thus, the relatively slow change in the message is not reflected in the ICTL bandwidth consumption.
+As shown in the figure, ICTL does not require more bandwidth at curved roads. We believe this is because the changes of vehicle status at curved roads are gradual and slow enough to not cause drastic change in DSRC messages. Thus, the relatively slow change in the message is reflected in the ICTL bandwidth consumption.
 
 \subsection{Cycle Length and Bandwidth}
 \label{sec:cl_bandwidth}
@@ -775,7 +775,7 @@ This shows that, it is challenging to set a proper fixed CL, and that with a fix
 
 ICTL has a header field of Compression Options, which carries information on how the payload is compressed before transmitted. This enables the receiver to dynamically configure the decoder based on the header and accept different compression algorithms and configurations. The compression algorithm used to compress DF payload affects overall size of DFs, so it is important to use one that performs well for such data.
 
-At the beginning of this study, it was believed that, for different DFs, the best performing compression algorithm should be different for different DFs. In other words, there should be no algorithm that worked for all DFs. As a result, a mechanism was designed in the ICTL implementation that, if the compression algorithm was not specified, it would iterate through a predefined selection of algorithms, and pick the one that yields smallest compressed payload.
+At the beginning of this study, it was believed that, the best performing compression algorithm should be different for different DFs. In other words, there should be no algorithm that worked for all DFs. As a result, a mechanism was designed in the ICTL implementation that, if the compression algorithm was not specified, it would iterate through a predefined selection of algorithms, and pick the one that yields smallest compressed payload.
 
 \begin{figure}[htb]
   \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{figures/results/cmp.pdf}}
@@ -800,7 +800,7 @@ This section describes an adaptive ICTL algorithm, in which a \texttt{shouldDF()
 
 In an imaginary world where a node knows exactly what it will be transmitting for sufficiently large amount of time and there are usable quantum computers that make it viable to exhaust large search space, this would be an optimization problem where the goal is to find globally optimal sequence of CLs for transmitting all the frames that produces the lowest bandwidth consumption throughout the transmission. However, in the real world, ICTL is in no way able to predict what will be transmitted, and the node has limited hardware resources for searching for the optimal solution. What ICTL can do is to look at locally available information and make the best decision for bandwidth consumption based on a well selected metric. 
 
-In this study, ICTL uses a metric of average frame size of the ICTL Cycle calculated up to the most recent frame. More formally, for each frame being transmitted, the metric $\mu_{cycle}$ for $n$th frame within the ICTL Cycle is defined as Equation~\ref{eq:mu_cycle}:
+In this study, ICTL uses a metric of average frame size of the ICTL Cycle, calculated up to the most recent frame. More formally, for each frame being transmitted, the metric $\mu_{cycle}$ for $n$th frame within the ICTL Cycle is defined as Equation~\ref{eq:mu_cycle}:
 
 \begin{equation}
   \mu_{cycle}^n = \frac{S_{KF} + \sum_{i=2}^{n}{S_{DF}^i}}{n}
@@ -819,7 +819,7 @@ The following is a pseudo-code listing for logic to determine whether a DF shoul
 
 ICTL calls \texttt{sentDF()} and \texttt{sentKF()} methods whenever it sends a DF or a KF. It calls \texttt{shouldSendThisDF()} method to determine whether the next frame should be sent as DF or KF.
 
-This algorithm minimizes average frame size within a ICTL Cycle. Although it only utilizes local information, the optimization is a step towards optimized CLs and achieves much lower bandwidth consumption.
+This algorithm minimizes average frame size within an ICTL Cycle. Although it only utilizes local information, the optimization is a step towards optimized CLs and achieves much lower bandwidth consumption.
 
 \subsection{Experimental Results}
 
@@ -923,21 +923,21 @@ The running time of adaptive ICTL's encoding operation is less than 1 ms, but gr
 
 \chapter{Conclusions}
 
-In context of a real-world application, vehicle platooning, this dissertation strives to improve efficiency and reliability of vehicular networking, using an emulated experimental approach.
+In context of a real-world application, vehicle platooning, this dissertation strives to improve the efficiency and reliability of vehicular networking, using an emulated experimental approach.
 
 To start with, an emulation infrastructure is designed and implemented to provide a scalable yet realistic experimental platform. As a general framework for wireless networking emulation, Squirrel is designed to use as much real-world software components as possible. Conceptually, it replaces the wireless hardware, device driver's Hardware Abstract Layer (HAL) and the IEEE 802.11 kernel module, and provides upper layers with interfaces that are same as on real wireless devices. Consequently, testing targets on Squirrel are real software components that are deployable to real-world devices. Squirrel is configurable through a plug-in system. This allows different wireless models and mobility managers to be developed for Squirrel.
 
 Studies in this dissertation use a CSMA/CA model that emulates the behaviors of IEEE 802.11 networks. It uses a leaky bucket to track channel condition in vicinity of each node. As an event happens near a node, the corresponding leaky bucket increases by the number of nanoseconds the event takes to finish. All leaky buckets leak at the same rate as time, i.e. $1\times 10^9$ per second. With this technique, channel condition is independently tracked for each node, which enables the model to not only shape throughput of traffic, but also reflect interference generated by other transmitting nodes. As a result, channel congestion is properly emulated.
 
-Effectiveness tests are conducted for the CSMA/CA model in Squirrel. It demonstrates that Squirrel effectively reflect network congestion in the test, and show a similar trend of iperf UDP throughput compared to the same test conducted on Android devices. In addition, Squirrel's throughput is also tested using the PassThrough network model. On a workstation with a 6-core CPU, Squirrel achieves 1200 Mbps throughput in total.
+Effectiveness tests are conducted for the CSMA/CA model in Squirrel. It demonstrates that Squirrel effectively reflect network congestion in the test and show a similar trend of iperf UDP throughput compared to the same test conducted on Android devices. In addition, Squirrel's throughput is also tested using the PassThrough network model. On a workstation with a 6-core CPU, Squirrel achieves 1200 Mbps throughput in total.
 
 Second, an interframe compression method, ICTL, is designed and implemented. Unlike traditional compression methods where payload of each frame is compressed directly, ICTL compresses the difference between consecutive frames. The interframe compression design is inspired by video compression algorithms, but is adapted to be more suitable for vehicular networking. Two message types, KF and DF, are introduced by ICTL. A KF encodes application data directly, while DF encodes the difference between the application data and a previously transmitted KF. In a general transmission sequence, a KF is followed by a number of DFs. Since a DF is much smaller than a KF, this reduces average bandwidth consumption.
 
 Behaviors of ICTL are studied under different configurations and scenarios, using analytical method as well as experimental method on Squirrel. Based on mathematical analysis, it is speculated that reducing bandwidth consumption should help increase ADR as well. With this in mind, an adaptive ICTL is designed and implemented. Unlike in basic ICTL where a fixed CL is used, adaptive ICTL goes through a process for each frame to determine whether it should be a KF or a DF should be send, based on average frame size within current ICTL Cycle.
 
-The adaptive ICTL was tested on Squirrel, under different network utilization level. It has been shown that adaptive ICTL achieves over 50\% in reduction of bandwidth consumption, and maintains relative high ADR when network is congested. The adaptive ICTL algorithm achieves the lowest bandwidth consumption and highest ADR among all tested ICTL and tradition compression algorithms, in all test cases.
+The adaptive ICTL was tested on Squirrel, under different network utilization level. It has been shown that adaptive ICTL achieves over 50\% in reduction of bandwidth consumption and maintains relative high ADR when network is congested. The adaptive ICTL algorithm achieves the lowest bandwidth consumption and the highest ADR among all the tested ICTL and tradition compression algorithms, in all test cases.
 
-In an effort to ensure reproducibility and applicability of the research, the implementation of Squirrel is open-source and available at \url{https://github.com/squirrel-land/squirrel}, and the implementations of ICTL as well as adaptive ICTL are open-source and available at \url{https://github.com/songgao/ictl}.
+In an effort to promote reproducibility and applicability of the research, the implementation of Squirrel is open-source and available at \url{https://github.com/squirrel-land/squirrel}, and the implementations of ICTL as well as adaptive ICTL are open-source and available at \url{https://github.com/songgao/ictl}.
 
 \chapter{Future Work}
 
